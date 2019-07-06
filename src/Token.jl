@@ -1,5 +1,7 @@
 module Token
 
+export Token
+
 mutable struct Token
     id   :: Int64
     text :: Stirng
