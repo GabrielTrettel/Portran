@@ -2,16 +2,22 @@ module TokenDefinition
 
 export Token,
        TokenIDS,
-       IDENTIFIER
-
+       IDENTIFIER,
+       INT_NUMBER,
+       FLOAT_NUMBER,
+       OPERATOR,
+       RESERVED_WORD,
+       PUNCTUATION,
+       INVALID
 
 @enum TokenIDS begin
    IDENTIFIER     = 0
    INT_NUMBER     = 1
    FLOAT_NUMBER   = 2
    OPERATOR       = 3
-   RESERVERD_WORD = 4
-   PONTUACTION    = 5
+   RESERVED_WORD  = 4
+   PUNCTUATION    = 5
+   INVALID        = 6
 end
 
 
@@ -23,4 +29,4 @@ mutable struct Token
     end
 end
 
-end #module
+end
