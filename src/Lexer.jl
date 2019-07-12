@@ -10,8 +10,8 @@ const LETTERS        = Set('a':'z')
 const BLANKS         = Set([' ', '\n', '\t', '\r'])
 const OPERATORS      = Set(["+", "-", "*", "/", "^"])
 const DIGITS         = Set('0':'9')
-const SEPARATORS     = Set(['(', ')', '{', '}', '.', ','])
-const SEP_STRING     = Set(["(", ")", "{", "}", ".", ","])
+const SEPARATORS     = Set(['(', ')', '{', '}', '.', ',', ':'])
+const SEP_STRING     = Set(["(", ")", "{", "}", ".", ",", ":"])
 
 isblank(c::Char)          = c in BLANKS
 isseparator(c::Char)      = c in SEPARATORS
