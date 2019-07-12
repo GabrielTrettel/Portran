@@ -1,7 +1,8 @@
 module Lexer
 
-include("Token.jl")
+export parsecode
 
+include("Token.jl")
 using .TokenDefinition
 
 const RESERVEDWORDS  = Set(["programa", "declare", "escreva", "leia", "fimprog"])
@@ -16,9 +17,9 @@ isseparator(c)          = c in SEPARATORS
 isoperator(c)           = c in OPERATORS
 isreservedword(s)       = s in RESERVEDWORDS
 
-const IDENTIFIER_REGEX = r"[A-Za-z_-]+[0-9]*"
+const IDENTIFIER_REGEX   = r"[A-Za-z_-]+[0-9]*"
 const FLOAT_NUMBER_REGEX = r"[0-9]+\.[0-9]+"
-const INT_NUMBER_REGEX = r"[0-9]+"
+const INT_NUMBER_REGEX   = r"[0-9]+"
 
 function parsecode(code::String)::Array{Token}
     # Split all whitespaces
