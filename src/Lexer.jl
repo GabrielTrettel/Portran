@@ -11,11 +11,13 @@ const BLANKS         = Set([' ', '\n', '\t', '\r'])
 const OPERATORS      = Set(["+", "-", "*", "/", "^"])
 const DIGITS         = Set('0':'9')
 const SEPARATORS     = Set(['(', ')', '{', '}', '.', ','])
+const SEP_STRING     = Set(["(", ")", "{", "}", ".", ","])
 
-isblank(c::Char)        = c in BLANKS
-isseparator(c)          = c in SEPARATORS
-isoperator(c)           = c in OPERATORS
-isreservedword(s)       = s in RESERVEDWORDS
+isblank(c::Char)          = c in BLANKS
+isseparator(c::Char)      = c in SEPARATORS
+isseparator(s::String)    = s in SEP_STRING
+isoperator(s::String)     = s in OPERATORS
+isreservedword(s::String) = s in RESERVEDWORDS
 
 const IDENTIFIER_REGEX   = r"[A-Za-z_-]+[0-9]*"
 const FLOAT_NUMBER_REGEX = r"[0-9]+\.[0-9]+"
