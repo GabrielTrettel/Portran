@@ -10,7 +10,11 @@ function main()
     io = read(file_to_parse, String)
 
     tokens = parsecode(io)
-    printstyled(tokens)
+
+    for token in tokens
+        println("`$(token.text)` is $(token.id) ")
+    end
+
 end # function main
 
 
