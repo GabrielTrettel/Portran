@@ -35,14 +35,13 @@ function parsecode(code::String)::Array{Token}
     vec_str   = []
 
     for sub_str in sub_strs
-        @show sub_str
         chars = collect(sub_str)
 
         vec_chars::Array{Char} = []
         len_chars = length(chars)
         for (index, char) in enumerate(chars)
             if isseparator(char) || isblank(char)
-                # Check fisrt if we can check by indexator chars[index+1]
+                # Check fisrt if we can check by index chars[index+1]
                 # if we can and it's a digit, that means that it's a
                 # float number literal, so we just push the char
                 if index < len_chars
