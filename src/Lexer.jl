@@ -10,12 +10,14 @@ const LETTERS        = Set('a':'z')
 const BLANKS         = Set([' ', '\n', '\t', '\r'])
 const OPERATORS      = Set(["+", "-", "*", "/", "^"])
 const DIGITS         = Set('0':'9')
-const SEPARATORS     = Set(['(', ')', '{', '}', '.', ','])
+const SEPARATORS     = Set(['(', ')', '{', '}', '.', ',', ':'])
+const SEP_STRING     = Set(["(", ")", "{", "}", ".", ",", ":"])
 
-isblank(c::Char)        = c in BLANKS
-isseparator(c)          = c in SEPARATORS
-isoperator(c)           = c in OPERATORS
-isreservedword(s)       = s in RESERVEDWORDS
+isblank(c::Char)          = c in BLANKS
+isseparator(c::Char)      = c in SEPARATORS
+isseparator(s::String)    = s in SEP_STRING
+isoperator(s::String)     = s in OPERATORS
+isreservedword(s::String) = s in RESERVEDWORDS
 
 const IDENTIFIER_REGEX   = r"[A-Za-z_-]+[0-9]*"
 const FLOAT_NUMBER_REGEX = r"[0-9]+\.[0-9]+"
@@ -33,14 +35,13 @@ function parsecode(code::String)::Array{Token}
     vec_str   = []
 
     for sub_str in sub_strs
-        # @show sub_str
         chars = collect(sub_str)
 
         vec_chars::Array{Char} = []
         len_chars = length(chars)
         for (index, char) in enumerate(chars)
             if isseparator(char) || isblank(char)
-                # Check fisrt if we can check by indexator chars[index+1]
+                # Check fisrt if we can check by index chars[index+1]
                 # if we can and it's a digit, that means that it's a
                 # float number literal, so we just push the char
                 if index < len_chars
