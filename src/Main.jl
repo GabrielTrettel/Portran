@@ -12,7 +12,7 @@ function main()
     tokens = parsecode(io)
 
     for token in tokens
-        println("`$(token.text)` is $(token.id) ")
+        println(token)
     end
 
 end # function main

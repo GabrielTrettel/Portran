@@ -29,4 +29,10 @@ mutable struct Token
     end
 end
 
+
+# Base.show is invoked in Atom and @show
+Base.show(io::IO, t::Token) = println(io, "`$(t.text)` is $(t.id)")
+# Base.println is invoked in println call
+Base.println(t::Token) = println("`$(t.text)` is $(t.id)")
+
 end

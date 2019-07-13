@@ -33,7 +33,7 @@ function parsecode(code::String)::Array{Token}
     vec_str   = []
 
     for sub_str in sub_strs
-        @show sub_str
+        # @show sub_str
         chars = collect(sub_str)
 
         vec_chars::Array{Char} = []
