@@ -112,7 +112,7 @@ function parsecode(code::String)::Array{Token}
             m = match(INT_NUMBER_REGEX, str)
             push!(tokens, Token(INT_NUMBER, m.match))
         else # If there is no match, defaults do INVALID Token
-            push!(tokens, Token(INVALID, str))
+            # push!(tokens, Token(INVALID, str))
         end # if
     end # for
 
