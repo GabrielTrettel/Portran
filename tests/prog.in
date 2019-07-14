@@ -1,0 +1,12 @@
+programa teste
+inicio
+   declare a1,b1,c2: inteiros.
+   a1 := 3.
+   b1 := 2.
+   c2 := a + b * 5.
+   escreva(a).
+   escreva(b).
+   escreva(c).
+   a@j2.
+fim
+fimprog
