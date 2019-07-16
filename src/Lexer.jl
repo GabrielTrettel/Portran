@@ -8,7 +8,7 @@ using .TokenDefinition
 const RESERVEDWORDS  = Set(["programa", "declare", "escreva", "leia", "fimprog", "inicio", "fim"])
 const LETTERS        = Set('a':'z')
 const BLANKS         = Set([' ', '\n', '\t', '\r'])
-const OPERATORS      = Set(["+", "-", "*", "/", "^"])
+const OPERATORS      = Set(["+", "-", "*", "/", "^", "==", "!="])
 const DIGITS         = Set('0':'9')
 const SEPARATORS     = Set(['(', ')', '{', '}', '.', ',', ':'])
 const SEP_STRING     = Set(["(", ")", "{", "}", ".", ",", ":"])
@@ -24,18 +24,9 @@ const IDENTIFIER_REGEX   = r"[A-Za-z_-]+[0-9]*"
 const FLOAT_NUMBER_REGEX = r"[0-9]+\.[0-9]+"
 const INT_NUMBER_REGEX   = r"[0-9]+"
 
-function parsecode(code::String)::Array{Token}
-    # Split all whitespaces
-    sub_strs = split(code)
-
-    if isempty(sub_strs)
-        return []
-    end # if
-
-    tokens = []
+function lexing(code::String)::Array{String}
     vec_str::Array{String} = []
 
-    # for sub_str in sub_strs
     chars = collect(code)
     vec_chars::Array{Char} = []
     len_chars = length(chars)
@@ -89,7 +80,16 @@ function parsecode(code::String)::Array{Token}
             push!(vec_chars, char)
         end # if
     end # for
-    # end # for
+    return vec_str
+end # function
+
+function parsecode(code::String)::Array{Token}
+    if isempty(code)
+        return []
+    end # if
+
+    tokens = []
+    vec_str = lexing(code)
 
     for str in vec_str
         # At this point `str` is small enought to have one and only one match
