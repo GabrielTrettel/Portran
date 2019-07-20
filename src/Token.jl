@@ -24,9 +24,9 @@ end # enum
 
 
 mutable struct Token
-    id   :: Union{Int64, TokenIDS}
+    id   :: TokenIDS
     text :: String
-    function Token(id=0, txt="")
+    function Token(id=TokenIDS.INVALID, txt="")
         new(id, txt)
     end # function
 end # struct

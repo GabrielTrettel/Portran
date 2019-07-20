@@ -5,10 +5,10 @@ export parsecode
 include("Token.jl")
 using .TokenDefinition
 
-const RESERVEDWORDS  = Set(["programa", "declare", "escreva", "leia", "fimprog", "inicio", "fim"])
+const RESERVEDWORDS  = Set(["programa", "declare", "escreva", "leia", "fimprog", "inicio", "fim", "se", "senao", "fimse"])
 const LETTERS        = Set('a':'z')
 const BLANKS         = Set([' ', '\n', '\t', '\r'])
-const OPERATORS      = Set(["+", "-", "*", "/", "^", "==", "!="])
+const OPERATORS      = Set(["+", "-", "*", "/", "^", "==", "!=", "<", ">", "<=", ">="])
 const DIGITS         = Set('0':'9')
 const SEPARATORS     = Set(['(', ')', '{', '}', '.', ',', ':'])
 const SEP_STRING     = Set(["(", ")", "{", "}", ".", ",", ":"])
@@ -21,6 +21,8 @@ isoperator(s::String)     = s in OPERATORS
 isreservedword(s::String) = s in RESERVEDWORDS
 
 const IDENTIFIER_REGEX   = r"[A-Za-z_-]+[0-9]*"
+const CHAR_REGEX         = r"\'[A-Za-z0-9]\'"
+const STRING_REGEX       = r"\".*\""
 const FLOAT_NUMBER_REGEX = r"[0-9]+\.[0-9]+"
 const INT_NUMBER_REGEX   = r"[0-9]+"
 
@@ -104,12 +106,25 @@ function parsecode(code::String)::Array{Token}
             push!(tokens, Token(OPERATOR, str))
         elseif occursin(IDENTIFIER_REGEX, str)
             m = match(IDENTIFIER_REGEX, str)
-            push!(tokens, Token(IDENTIFIER, m.match))
+            if length(str) == length(m.match)
+                push!(tokens, Token(IDENTIFIER, m.match))
+            else
+                push!(tokens, Token(INVALID, str))
+            end # if
         elseif occursin(FLOAT_NUMBER_REGEX, str)
             m = match(FLOAT_NUMBER_REGEX, str)
-            push!(tokens, Token(FLOAT_NUMBER, m.match))
+            if length(str) == length(m.match)
+                push!(tokens, Token(IDENTIFIER, m.match))
+            else
+                push!(tokens, Token(INVALID, str))
+            end # if
         elseif occursin(INT_NUMBER_REGEX, str)
             m = match(INT_NUMBER_REGEX, str)
+            if length(str) == length(m.match)
+                push!(tokens, Token(IDENTIFIER, m.match))
+            else
+                push!(tokens, Token(INVALID, str))
+            end # if
             push!(tokens, Token(INT_NUMBER, m.match))
         else # If there is no match, defaults do INVALID Token
             if !isempty(str)
