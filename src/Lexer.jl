@@ -5,7 +5,7 @@ export parsecode
 include("Token.jl")
 using .TokenDefinition
 
-const RESERVEDWORDS  = Set(["programa", "declare", "escreva", "leia", "fimprog", "inicio", "fim", "se", "senao", "fimse"])
+const RESERVEDWORDS  = Set(["programa", "declare", "escreva", "leia", "fimprog", "inicio", "fim", "se", "entao", "senao", "fimse"])
 const LETTERS        = Set('a':'z')
 const BLANKS         = Set([' ', '\n', '\t', '\r'])
 const OPERATORS      = Set(["+", "-", "*", "/", "^", "==", "!=", "<", ">", "<=", ">="])

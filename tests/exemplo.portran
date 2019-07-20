@@ -8,8 +8,9 @@ escreva("Digite B").
 leia(b).
 
 se (a < B)
+entao
     c := a + b.
-else
+senao
     c := a - b.
 fimse
 
