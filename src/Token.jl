@@ -20,6 +20,7 @@ export Token,
    RESERVED_WORD  = 5
    PUNCTUATION    = 6
    INVALID        = 7
+   EOF            = -1
 end # enum
 
 
@@ -31,6 +32,22 @@ mutable struct Token
     end # function
 end # struct
 
+
+mutable struct Tokens
+   tokens :: Vector{Token}
+   pos    :: Integer
+   total  :: Integer
+   function Tokens(tks::Vector{Token})
+      new(tks, 1, length(tks))
+   end
+end
+
+function next_token(t::Tokens)
+   if t.total >= pos return TokenIDS.EOF end
+
+   t.pos += 1
+   return tokes[pos]
+end
 
 # Base.show is invoked in Atom and @show
 Base.show(io::IO, t::Token) = println(io, "`$(t.text)` is $(t.id)")
