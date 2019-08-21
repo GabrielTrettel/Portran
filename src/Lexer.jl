@@ -49,10 +49,8 @@ function next_token(s::Source) :: Token
             if i < length(chars)
                 if chars[i+1] == '='
                     Token(ASSIGN, ":=", (pos,pos+1))
-                elseif isblank(chars[i+1])
-                    Token(PUNCTUATION, string(char), (pos, pos))
                 else
-                    Token(INVALID, char*chars[i+1], (pos, pos+1))
+                    Token(PUNCTUATION, string(char), (pos, pos))
                 end # if
             end # if
         else

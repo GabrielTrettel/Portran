@@ -8,7 +8,7 @@ function main()
     file_to_parse = ARGS[1]
     io = read(file_to_parse, String)
 
-    tks = tokenise(io)
+    tks = tokenise(":int")
 
     for token in tks.tokens
         println(token)
