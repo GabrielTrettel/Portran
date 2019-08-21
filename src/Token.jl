@@ -34,7 +34,7 @@ mutable struct Tokens
    end
 end
 
-function next_token!(t::Tokens)
+function next!(t::Tokens)
    v = t.tokens[ t.pos ]
    printstyled(v; color=:red)
 

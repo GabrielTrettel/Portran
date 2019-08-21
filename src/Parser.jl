@@ -18,9 +18,9 @@ end
 function syntactic_parse(tokens::Tokens)
     env = Dict()
 
-    t = next_token!(tokens)
+    t = next!(tokens)
     if t.id == RESERVED_WORD && t.text == "programa"
-        t = next_token!(tokens)
+        t = next!(tokens)
         if t.id == IDENTIFIER
             bloco!(tokens, env)
         else
@@ -30,7 +30,8 @@ function syntactic_parse(tokens::Tokens)
         error("AS: Parsing Error - Expecting PROGRAMA")
     end
 
-    t = next_token!(tokens)
+    t = next!(tokens)
+
     if t.id != EOF
         error("AS: Program finished but file has content")
     end
@@ -39,26 +40,29 @@ end
 
 
 function declare!(tokens::Tokens, env)
-    t = next_token!(tokens)
-    current_declared_vars = []
+    t = next!(tokens)
+    current_declared_vars::Array{var_state} = []
 
     while t.id == IDENTIFIER || iscoma(t)
         push!(current_declared_vars, var_state(t.text))
-        t = next_token!(tokens)
+        t = next!(tokens)
     end
 
     if iscolon(t)
-        t = next_token!(tokens)
+        t = next!(tokens)
         if t.id == TYPE
             map(x->x.type=t.text, current_declared_vars)
         else
             error("AS: $(t.text) is not a correct TYPE")
         end
 
-        t = next_token!(tokens)
+        t = next!(tokens)
         if isperiod(t)
             # Returned with success
-            map!(x->push!(env, x.name=>x), current_declared_vars)
+            for state in current_declared_vars
+                env[state.name] = state
+            end
+
         else
             error("AS: $(t.text) Not an end of line.")
         end
@@ -72,7 +76,12 @@ end
 function bloco!(tokens::Tokens, env)
     #TODO onde fica o corpo do programa.
     #     Tudo que vem entre [declare, fimprog)
-    1
+
+    t = next!(tokens)
+
+    if t.id==RESERVED_WORD && t.text=="declare"
+        declare!(tokens, env)
+    end
 end
 
 
