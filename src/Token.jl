@@ -37,7 +37,7 @@ end
 
 function next!(t::Tokens)
    v = t.tokens[ t.pos ]
-   printstyled(v; color=:red)
+   println("$CGREEN $v $CEND")
 
    if t.pos == t.total
       return t.tokens[ t.pos ]

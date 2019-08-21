@@ -1,9 +1,4 @@
 programa teste
-   declare a1,b1,c2: int.
-   a1 := 3.
-   b1 := 2.
-   c2 := a + b * 5.
-   escreva(a).
-   escreva(b).
-   escreva(c).
+   declare a1,b1,c2 : int.
+   leia(a1).
 fimprog
