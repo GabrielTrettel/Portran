@@ -2,11 +2,13 @@ include("Token.jl")
 
 const RESERVEDWORDS  = Set(["programa", "declare", "escreva", "leia", "fimprog"])
 const CONTROL_FLUX   = Set(["se", "então", "senão", "fimse", "enquanto", "faça", "fimenq", "fimfaça"])
+const BOOL_VALUE     = Set(["Verdadeiro", "Falso", "V", "F"])
 const TYPE_NAMES     = Set(["int", "real", "char", "texto", "boleano"])
 const BLANKS         = Set([' ', '\n', '\t', '\r'])
 const OPERATORS      = Set(["+", "-", "*", "/", "^", "==", "!=", "<", ">", "<=", ">="])
 const SEPARATORS     = Set(['(', ')', '{', '}', '.', ',', ':'])
 
+isboolliteral(str::String)= s in BOOL_VALUE
 isblank(c::Char)          = c in BLANKS
 isseparator(c::Char)      = c in SEPARATORS
 isoperator(s::String)     = s in OPERATORS
@@ -154,6 +156,8 @@ function parse_rest(src, pos, line)::Token
         return Token(RESERVED_WORD, str, (pos, pos+len), line)
     elseif iscontrolflux(str)
         return Token(CFLUX, str, (pos, pos+len), line)
+    elseif isboolliteral(str)
+        return Token(BOOL, str, (pos, pos+len), line)
     elseif istype(str)
         return Token(TYPE, str, (pos, pos+len), line)
     elseif isoperator(str)

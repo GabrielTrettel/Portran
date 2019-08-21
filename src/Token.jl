@@ -12,6 +12,7 @@
    INVALID        = 10
    WHITESPACE     = 11
    CFLUX          = 12
+   BOOL           = 13
    EOF            = -1
 end # enum
 
