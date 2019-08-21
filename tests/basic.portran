@@ -1,6 +1,6 @@
 programa
 
-declare a, b, c, d.
+declare a, b, c, d : int.
 a := 10
 b := "Str"
 c := 3.1415

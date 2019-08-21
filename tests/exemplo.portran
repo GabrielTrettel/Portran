@@ -1,25 +1,23 @@
-programa
+programa teste2
+    declare a, b, c, d : real.
+    escreva("Programa Teste").
+    escreva("Digite A").
+    leia(a).
+    escreva("Digite B").
+    leia(b).
 
-declare a, b, c, d.
-escreva("Programa Teste").
-escreva("Digite A").
-leia(a).
-escreva("Digite B").
-leia(b).
+    se (a < B) entao
+        c := a + b.
+    senao
+        c := a - b.
+    fimse
 
-se (a < B)
-entao
-    c := a + b.
-senao
-    c := a - b.
-fimse
+    escreva("C é igual a ").
+    escreva(c).
 
-escreva("C é igual a ").
-escreva(c).
+    d := c * a + b.
 
-d := c * a + b.
-
-escreva("D é igual a ").
-escreva(d).
+    escreva("D é igual a ").
+    escreva(d).
 
 fimprog.
