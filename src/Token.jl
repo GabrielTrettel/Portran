@@ -20,8 +20,9 @@ mutable struct Token
     id   :: TokenIDS
     text :: String
     span :: Tuple{Integer, Integer}
-    function Token(id=INVALID, txt="", span=(0, 0))
-        new(id, txt, span)
+    line :: Integer
+    function Token(id=INVALID, txt="", span=(0, 0), line=1)
+        new(id, txt, span, line)
     end # function
 end # struct
 
@@ -48,6 +49,6 @@ function next!(t::Tokens)
 end
 
 # Base.show is invoked in Atom and @show
-Base.show(io::IO, t::Token) = println(io, "`$(t.text)` is $(t.id) start: $(t.span[1]) end: $(t.span[2])")
+Base.show(io::IO, t::Token) = println(io, "`$(t.text)` is $(t.id) start: $(t.span[1]) end: $(t.span[2]) at line $(t.line)")
 # Base.println is invoked in println call
-Base.println(t::Token) = println("`$(t.text)` is $(t.id) start: $(t.span[1]) end: $(t.span[2])")
+Base.println(t::Token) = println("`$(t.text)` is $(t.id) start: $(t.span[1]) end: $(t.span[2]) at line $(t.line)")
