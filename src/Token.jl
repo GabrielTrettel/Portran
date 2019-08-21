@@ -48,6 +48,14 @@ function next!(t::Tokens)
    return v
 end
 
+function current(t::Tokens)
+   return t.tokens[t.pos]
+end
+
+function roll_back(t::Tokens)
+   t.pos -= 1
+end
+
 # Base.show is invoked in Atom and @show
 Base.show(io::IO, t::Token) = println(io, "`$(t.text)` is $(t.id) start: $(t.span[1]) end: $(t.span[2]) at line $(t.line)")
 # Base.println is invoked in println call

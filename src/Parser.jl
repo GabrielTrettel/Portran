@@ -1,13 +1,23 @@
 include("Token.jl")
+include("Errors.jl")
 
-iscolon(t::Token) = t.id==PUNCTUATION && t.text==":"
-iscoma(t::Token)  = t.id==PUNCTUATION && t.text==","
-isperiod(t::Token)= t.id==PUNCTUATION && t.text=="."
+
+
+const table = Dict("int"=>INT_NUMBER, "real"=>FLOAT_NUMBER, "char"=>CHAR, "texto"=>STRING, "boleano"=>BOOL)
+
+iscolon(t::Token)   = t.id==PUNCTUATION && t.text==":"
+iscoma(t::Token)    = t.id==PUNCTUATION && t.text==","
+isperiod(t::Token)  = t.id==PUNCTUATION && t.text=="."
+isassign(t::Token)  = t.id==ASSIGN && t.text==":="
+isliteral(t::Token) = t.id==INT_NUMBER || t.id==FLOAT_NUMBER || t.id==CHAR || t.id==STRING
+
+type_match(t::Token, lit::Token, env) = table[env[t.text].type] == lit.id
+
 
 mutable struct var_state
     name   :: String
     init   :: Bool
-    type   :: String
+    type   :: String # can be: 'int', 'real', 'char', 'texto', 'boleano'
     value  :: String
     function var_state(name, init=false, type="", value="")
         new(name, init, type, value)
@@ -25,16 +35,16 @@ function syntactic_parse(tokens::Tokens)
             bloco!(tokens, env)
 
         else
-            error("AS: Parsing Error - Expecting name of program")
+            error("Parsing Error - Expecting name of program",t)
         end
     else
-        error("AS: Parsing Error - Expecting PROGRAMA")
+        error("Parsing Error - Expecting PROGRAMA",t)
     end
 
     t = next!(tokens)
 
     if t.id != EOF
-        error("AS: Program finished but file has content")
+        error("Program finished but file has content",t)
     end
 end
 
@@ -54,7 +64,7 @@ function declare!(tokens::Tokens, env)
         if t.id == TYPE
             map(x->x.type=t.text, current_declared_vars)
         else
-            error("AS: $(t.text) is not a correct TYPE")
+            error("$(t.text) is not a correct TYPE", t)
         end
 
         t = next!(tokens)
@@ -66,10 +76,10 @@ function declare!(tokens::Tokens, env)
             return
 
         else
-            error("AS: $(t.text) Not an end of line.")
+            error("$(t.text) Not an end of line.", t)
         end
     else
-        error("AS: $(t.text) Not correct DECLARE stmt")
+        error("$(t.text) Not correct DECLARE stmt", t)
     end
 end
 
@@ -95,8 +105,6 @@ end
 
 
 function cmd_io!(tokens::Tokens, env, io)
-    @show t = next!(tokens)
-
     if t.id==PUNCTUATION && t.text=="("
         t = next!(tokens)
         if t.id==IDENTIFIER
@@ -105,38 +113,57 @@ function cmd_io!(tokens::Tokens, env, io)
                     env[t.text].init = true
                 else # escreva
                     if env[t.text].init == false
-                        error("AS: Trying to print uninitialized variable")
+                        error("Trying to print uninitialized variable", t)
                     end
                 end # io
             else
-                error("AS:Trying to read from undeclared variable $(t.text)")
+                error("AS:Trying to read from undeclared variable $(t.text)", t)
             end # env
 
         else # id
-            error("AS: Values inside '$io' command must be a variable, not $(t.text)")
+            error("Values inside '$io' command must be a variable, not $(t.text)", t)
         end # id
         t = next!(tokens)
         if t.id!=PUNCTUATION && t.text==")"
-            error("AS: Missing closing parenthesis in '$io' stmt")
+            error("Missing closing parenthesis in '$io' stmt", t)
         end # )
 
         t = next!(tokens)
-        if !isperiod(t) error("AS: Missing period") end
+        if !isperiod(t) error("Missing period", t) end
     else # (
-        error("AS: Missing open parenthesis in '$io' stmt")
+        error("Missing open parenthesis in '$io' stmt", t)
     end # (
 end
 
 
-function cmd_escreva!(tokens::Tokens, env)
-    #TODO escreva(var).
-    1
-end
-
-
 function cmd_attr!(tokens::Tokens, env)
-    #TODO var := literal | expressão
-    1
+    # var := literal | expressão
+    variable = current(tokens)
+    if haskey(env, t.name)
+        t = next!(tokens)
+        if isassign(t)
+            t = next!(tokens)
+            if isliteral(t)
+                if type_match(variable, t, env)
+                    env[variable.text].value = t.text
+                    env[variable.text].init = true
+                else # not compatible types
+                    error("Mismatching types between $(variable.text) and literal of type $(t.text)", t)
+                end #type_match
+            else # should be expr
+                par_expr!(tokens, env)
+            end # if is literal
+
+            t = next!(tokens)
+            if !isperiod(t) error("Missing period", t) end
+        else # isn't assign symbol
+            error("Assign symbol required", t)
+        end #isassing
+
+    else #not has key
+        error("Undefined vaiable $(t.name)", t)
+
+    end # haskey
 end
 
 
