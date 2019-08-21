@@ -1,11 +1,11 @@
 include("Token.jl")
 
-const RESERVEDWORDS  = Set(["programa", "declare", "escreva", "leia", "fimprog", "inicio", "fim", "se", "entao", "senao", "fimse"])
-const TYPE_NAMES    = Set(["int", "real", "char", "texto", "boleano"])
-const LETTERS        = Set('a':'z')
+const RESERVEDWORDS  = Set(["programa", "declare", "escreva", "leia", "fimprog"])
+const CONTROL_FLUX   = Set(["se", "então", "senão", "fimse", "enquanto", "faça", "fimenq", "fimfaça"])
+const TYPE_NAMES     = Set(["int", "real", "char", "texto", "boleano"])
 const BLANKS         = Set([' ', '\n', '\t', '\r'])
 const OPERATORS      = Set(["+", "-", "*", "/", "^", "==", "!=", "<", ">", "<=", ">="])
-const SEPARATORS     = Set(['(', ')', '{', '}', '.', ','])
+const SEPARATORS     = Set(['(', ')', '{', '}', '.', ',', ':'])
 
 isblank(c::Char)          = c in BLANKS
 isseparator(c::Char)      = c in SEPARATORS
@@ -13,7 +13,7 @@ isoperator(s::String)     = s in OPERATORS
 isreservedword(s::String) = s in RESERVEDWORDS
 istype(s::String)         = s in TYPE_NAMES
 
-const IDENTIFIER_REGEX   = r"[A-Za-z_]+[A-Za-z_-]*[0-9]*"
+const IDENTIFIER_REGEX   = r"[A-Za-z_]+[A-Za-z-]*[0-9]*"
 
 mutable struct Source
     orig::String
@@ -43,8 +43,6 @@ function next_token(s::Source) :: Token
             parse_str(s.src[i:end], pos)
         elseif char == '#'
             parse_comment(s.src[i:end], pos)
-        elseif isseparator(char)
-            Token(PUNCTUATION, string(char), (pos, pos))
         elseif char == ':'
             if i < length(chars)
                 if chars[i+1] == '='
@@ -53,6 +51,8 @@ function next_token(s::Source) :: Token
                     Token(PUNCTUATION, string(char), (pos, pos))
                 end # if
             end # if
+        elseif isseparator(char)
+            Token(PUNCTUATION, string(char), (pos, pos))
         else
             parse_rest(s.src[i:end], pos)
         end # if
@@ -127,12 +127,12 @@ function parse_str(src, pos)::Token
         end # if
     end # for
 
-    if last(src[1:finish+1]) != '\"'
-        return Token(INVALID, src[1:finish+1], (pos, pos+finish))
+    if last(src[1:finish]) != '\"'
+        return Token(INVALID, src[1:finish], (pos, pos+finish))
     end # if
 
     # return Token(STRING, String(vec_chars), (pos, pos+len))
-    return Token(STRING, src[1:finish+1], (pos, pos+finish))
+    return Token(STRING, src[1:finish], (pos, pos+finish))
 end # function
 
 function parse_rest(src, pos)::Token
@@ -160,7 +160,7 @@ function parse_rest(src, pos)::Token
         if len+1 == length(m.match)
             return Token(IDENTIFIER, m.match, (pos, pos+len))
         else
-            return Token(INVALID, m.match, (pos, pos+length(m.match)))
+            return Token(INVALID, m.match, (pos, pos+length(m.match)-1))
         end # if
     else
         return Token(INVALID, str, (pos, pos+len))
