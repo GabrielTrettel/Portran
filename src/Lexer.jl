@@ -11,6 +11,7 @@ isblank(c::Char)          = c in BLANKS
 isseparator(c::Char)      = c in SEPARATORS
 isoperator(s::String)     = s in OPERATORS
 isreservedword(s::String) = s in RESERVEDWORDS
+iscontrolflux(s::String)  = s in CONTROL_FLUX
 istype(s::String)         = s in TYPE_NAMES
 
 const IDENTIFIER_REGEX   = r"[A-Za-z_]+[A-Za-z-]*[0-9]*"
@@ -151,6 +152,8 @@ function parse_rest(src, pos)::Token
 
     if isreservedword(str)
         return Token(RESERVED_WORD, str, (pos, pos+len))
+    elseif iscontrolflux(str)
+        return Token(CFLUX, str, (pos, pos+len))
     elseif istype(str)
         return Token(TYPE, str, (pos, pos+len))
     elseif isoperator(str)
