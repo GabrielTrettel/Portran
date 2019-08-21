@@ -21,10 +21,10 @@ function syntactic_parse(tokens::Tokens)
     t = next_token!(tokens)
     if t.id == RESERVED_WORD && t.text == "programa"
         t = next_token!(tokens)
-        if t.id == RESERVED_WORD && t.text == "declare"
-            declare!(tokens, env)
+        if t.id == IDENTIFIER
+            bloco!(tokens, env)
         else
-            error("AS: Parsing Error - Expecting ID")
+            error("AS: Parsing Error - Expecting name of program")
         end
     else
         error("AS: Parsing Error - Expecting PROGRAMA")
@@ -57,8 +57,8 @@ function declare!(tokens::Tokens, env)
 
         t = next_token!(tokens)
         if isperiod(t)
+            # Returned with success
             map!(x->push!(env, x.name=>x), current_declared_vars)
-            bloco(tokens, env)
         else
             error("AS: $(t.text) Not an end of line.")
         end
@@ -69,7 +69,31 @@ end
 
 
 
-function bloco(tokens::Tokens, env)
-    #TODO
+function bloco!(tokens::Tokens, env)
+    #TODO onde fica o corpo do programa.
+    #     Tudo que vem entre [declare, fimprog)
     1
+end
+
+
+function cmd_leia!(tokens::Tokens, env)
+    #TODO leia(var).
+end
+
+
+function cmd_escreva!(tokens::Tokens, env)
+    #TODO escreva(var).
+    1
+end
+
+
+function cmd_attr!(tokens::Tokens, env)
+    #TODO var := literal | expressão
+    1
+end
+
+
+function par_expr!(tokens::Tokens, env)
+    #TODO
+
 end
