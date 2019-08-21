@@ -2,18 +2,20 @@ module MainComp
 
 export main
 
-include("Lexer.jl")
-using .Lexer
+include("Portran.jl")
 
 function main()
     file_to_parse = ARGS[1]
     io = read(file_to_parse, String)
 
-    tokens = parsecode(io)
 
-    for token in tokens
+    tks = tokenise(io)
+
+    for token in tks.tokens
         println(token)
     end # for
+
+    syntactic_parse(tks)
 
 end # function main
 

@@ -1,10 +1,3 @@
-
-# include("Token.jl")
-# using .TokenDefinition
-# using .TokenDefinition : Token, TokenIDS, IDENTIFIER, ASSIGN, INT_NUMBER, FLOAT_NUMBER,OPERATOR,RESERVED_WORD,PUNCTUATION,INVALID,Tokens
-# include("Portran.jl")
-
-# export syntactic_parse
 include("Token.jl")
 
 iscolon(t::Token) = t.id==PUNCTUATION && t.text==":"

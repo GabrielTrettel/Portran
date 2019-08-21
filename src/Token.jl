@@ -6,17 +6,21 @@
    OPERATOR       = 4
    RESERVED_WORD  = 5
    PUNCTUATION    = 6
-   INVALID        = 7
+   CHAR           = 7
+   STRING         = 8
+   TYPE           = 9
+   INVALID        = 10
+   WHITESPACE     = 11
    EOF            = -1
-   TYPE           = 10
 end # enum
 
 
 mutable struct Token
     id   :: TokenIDS
     text :: String
-    function Token(id=INVALID, txt="")
-        new(id, txt)
+    span :: Tuple{Integer, Integer}
+    function Token(id=INVALID, txt="", span=(0, 0))
+        new(id, txt, span)
     end # function
 end # struct
 
@@ -43,6 +47,6 @@ function next_token!(t::Tokens)
 end
 
 # Base.show is invoked in Atom and @show
-Base.show(io::IO, t::Token) = println(io, "`$(t.text)` is $(t.id)")
+Base.show(io::IO, t::Token) = println(io, "`$(t.text)` is $(t.id) start: $(t.span[1]) end: $(t.span[2])")
 # Base.println is invoked in println call
-Base.println(t::Token) = println("`$(t.text)` is $(t.id)")
+Base.println(t::Token) = println("`$(t.text)` is $(t.id) start: $(t.span[1]) end: $(t.span[2])")
