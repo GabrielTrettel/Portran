@@ -81,11 +81,8 @@ function bloco!(tokens::Tokens, env)
     if t.id==RESERVED_WORD && t.text=="declare"
         declare!(tokens, env)
 
-    elseif t.id==RESERVED_WORD && t.text=="leia"
-        cmd_leia!(tokens, env)
-
-    elseif t.id==RESERVED_WORD && t.text=="escreva"
-        cmd_escreva(tokens, env)
+    elseif t.id==RESERVED_WORD && (t.text=="leia" || t.text=="escreva")
+        cmd_io!(tokens, env, t.text)
 
     elseif t.id==IDENTIFIER
         cmd_attr!(tokens, env)
@@ -97,30 +94,36 @@ function bloco!(tokens::Tokens, env)
 end
 
 
-function cmd_leia!(tokens::Tokens, env)
+function cmd_io!(tokens::Tokens, env, io)
     @show t = next!(tokens)
 
     if t.id==PUNCTUATION && t.text=="("
         t = next!(tokens)
         if t.id==IDENTIFIER
             if haskey(env, t.text)
-                env[t.text].init = true
+                if io == "leia"
+                    env[t.text].init = true
+                else # escreva
+                    if env[t.text].init == false
+                        error("AS: Trying to print uninitialized variable")
+                    end
+                end # io
             else
-                error("AS: Trying to read from indeclared var $(t.text)")
+                error("AS:Trying to read from undeclared variable $(t.text)")
             end # env
 
         else # id
-            error("AS: Values inside 'leia' command must be a variable, not $(t.text)")
+            error("AS: Values inside '$io' command must be a variable, not $(t.text)")
         end # id
         t = next!(tokens)
         if t.id!=PUNCTUATION && t.text==")"
-            error("AS: Missing closing parenthesis in 'leia' stmt")
+            error("AS: Missing closing parenthesis in '$io' stmt")
         end # )
 
         t = next!(tokens)
         if !isperiod(t) error("AS: Missing period") end
     else # (
-        error("AS: Missing open parenthesis in 'leia' stmt")
+        error("AS: Missing open parenthesis in '$io' stmt")
     end # (
 end
 
