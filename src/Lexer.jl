@@ -26,7 +26,7 @@ mutable struct Source
     end # function
 end # struct
 
-function next_token(s::Source) :: Token
+function next_token(s::Source, line::Integer) :: Token
     chars = collect(s.src)
 
     for (i, char) in enumerate(chars)
@@ -35,27 +35,27 @@ function next_token(s::Source) :: Token
         pos = s.curr_pos
 
         res = if isblank(char)
-            Token(WHITESPACE, string(char), (pos, pos))
+            Token(WHITESPACE, string(char), (pos, pos), line)
         elseif char == '-' || isdigit(char)
-            parse_number(s.src[i:end], pos)
+            parse_number(s.src[i:end], pos, line)
         elseif char == '\''
-            parse_char(s.src[i:end], pos)
+            parse_char(s.src[i:end], pos, line)
         elseif char == '\"'
-            parse_str(s.src[i:end], pos)
+            parse_str(s.src[i:end], pos, line)
         elseif char == '#'
-            parse_comment(s.src[i:end], pos)
+            parse_comment(s.src[i:end], pos, line)
         elseif char == ':'
             if i < length(chars)
                 if chars[i+1] == '='
-                    Token(ASSIGN, ":=", (pos,pos+1))
+                    Token(ASSIGN, ":=", (pos,pos+1), line)
                 else
-                    Token(PUNCTUATION, string(char), (pos, pos))
+                    Token(PUNCTUATION, string(char), (pos, pos), line)
                 end # if
             end # if
         elseif isseparator(char)
-            Token(PUNCTUATION, string(char), (pos, pos))
+            Token(PUNCTUATION, string(char), (pos, pos), line)
         else
-            parse_rest(s.src[i:end], pos)
+            parse_rest(s.src[i:end], pos, line)
         end # if
 
         final = res.span[2]
@@ -65,10 +65,10 @@ function next_token(s::Source) :: Token
 
         return res
     end # for
-    Token(EOF, "", (s.curr_pos, s.curr_pos))
+    Token(EOF, "", (s.curr_pos, s.curr_pos), line)
 end # function
 
-function parse_number(src, pos)::Token
+function parse_number(src::String, pos::Integer, line::Integer)::Token
     chars = collect(src)
     vec_chars::Array{Char} = []
 
@@ -82,10 +82,10 @@ function parse_number(src, pos)::Token
                 if isdigit(chars[i+1])
                     push!(vec_chars, char)
                 else
-                    return parse_rest(src, pos)
+                    return parse_rest(src, pos, line)
                 end # if
             else
-                return parse_rest(src, pos)
+                return parse_rest(src, pos, line)
             end # if
         elseif char == '.'
             has_dot = true
@@ -102,23 +102,23 @@ function parse_number(src, pos)::Token
     len = length(vec_chars) - 1
 
     if has_dot
-        return Token(FLOAT_NUMBER, String(vec_chars), (pos, pos+len))
+        return Token(FLOAT_NUMBER, String(vec_chars), (pos, pos+len), line)
     else
-        return Token(INT_NUMBER, String(vec_chars), (pos, pos+len))
+        return Token(INT_NUMBER, String(vec_chars), (pos, pos+len), line)
     end # if
 end # function
 
-function parse_char(src, pos)::Token
+function parse_char(src::String, pos::Integer, line::Integer)::Token
     chars = collect(src)
 
     if chars[3] != '\''
-        return Token(INVALID, src[1:3], (pos, pos+2))
+        return Token(INVALID, src[1:3], (pos, pos+2), line)
     end # if
 
-    return Token(CHAR, src[1:3], (pos, pos+2))
+    return Token(CHAR, src[1:3], (pos, pos+2), line)
 end # function
 
-function parse_str(src, pos)::Token
+function parse_str(src, pos, line)::Token
     chars = collect(src)
     finish = 0
     for (index, char) in enumerate(chars)
@@ -129,14 +129,14 @@ function parse_str(src, pos)::Token
     end # for
 
     if last(src[1:finish]) != '\"'
-        return Token(INVALID, src[1:finish], (pos, pos+finish))
+        return Token(INVALID, src[1:finish], (pos, pos+finish), line)
     end # if
 
     # return Token(STRING, String(vec_chars), (pos, pos+len))
-    return Token(STRING, src[1:finish], (pos, pos+finish))
+    return Token(STRING, src[1:finish], (pos, pos+finish), line)
 end # function
 
-function parse_rest(src, pos)::Token
+function parse_rest(src, pos, line)::Token
     chars = collect(src)
     vec_chars :: Array{Char} = []
 
@@ -151,22 +151,22 @@ function parse_rest(src, pos)::Token
     len = length(str) -1
 
     if isreservedword(str)
-        return Token(RESERVED_WORD, str, (pos, pos+len))
+        return Token(RESERVED_WORD, str, (pos, pos+len), line)
     elseif iscontrolflux(str)
-        return Token(CFLUX, str, (pos, pos+len))
+        return Token(CFLUX, str, (pos, pos+len), line)
     elseif istype(str)
-        return Token(TYPE, str, (pos, pos+len))
+        return Token(TYPE, str, (pos, pos+len), line)
     elseif isoperator(str)
-        return Token(OPERATOR, str, (pos, pos+len))
+        return Token(OPERATOR, str, (pos, pos+len), line)
     elseif occursin(IDENTIFIER_REGEX, str)
         m = match(IDENTIFIER_REGEX, str)
         if len+1 == length(m.match)
-            return Token(IDENTIFIER, m.match, (pos, pos+len))
+            return Token(IDENTIFIER, m.match, (pos, pos+len), line)
         else
-            return Token(INVALID, m.match, (pos, pos+length(m.match)-1))
+            return Token(INVALID, m.match, (pos, pos+length(m.match)-1), line)
         end # if
     else
-        return Token(INVALID, str, (pos, pos+len))
+        return Token(INVALID, str, (pos, pos+len), line)
     end # if
 end # function
 
@@ -174,9 +174,13 @@ function tokenise(src::String)::Tokens
     i = 0
     source = Source(src)
     vec_tokens :: Array{Token} = []
+    line = 1
 
     while true
-        token = next_token(source)
+        token = next_token(source, line)
+        if token.id == WHITESPACE && token.text == "\n"
+            line += 1
+        end # if
         if token.id == EOF
             push!(vec_tokens, token)
             break
