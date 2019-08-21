@@ -5,19 +5,15 @@ const TYPE_NAMES    = Set(["int", "real", "char", "texto", "boleano"])
 const LETTERS        = Set('a':'z')
 const BLANKS         = Set([' ', '\n', '\t', '\r'])
 const OPERATORS      = Set(["+", "-", "*", "/", "^", "==", "!=", "<", ">", "<=", ">="])
-const DIGITS         = Set('0':'9')
 const SEPARATORS     = Set(['(', ')', '{', '}', '.', ','])
-const SEP_STRING     = Set(["(", ")", "{", "}", ".", ","])
 
-isassing(s::String)       = s == ":="
 isblank(c::Char)          = c in BLANKS
 isseparator(c::Char)      = c in SEPARATORS
-isseparator(s::String)    = s in SEP_STRING
 isoperator(s::String)     = s in OPERATORS
 isreservedword(s::String) = s in RESERVEDWORDS
 istype(s::String)         = s in TYPE_NAMES
 
-const IDENTIFIER_REGEX   = r"[A-Za-z_-]+[0-9]*"
+const IDENTIFIER_REGEX   = r"[A-Za-z_]+[A-Za-z_-]*[0-9]*"
 
 mutable struct Source
     orig::String
@@ -38,9 +34,6 @@ function next_token(s::Source) :: Token
         pos = s.curr_pos
 
         res = if isblank(char)
-            # s.curr_pos += length(char)
-            # s.src = s.orig[s.curr_pos:end]
-            # continue
             Token(WHITESPACE, string(char), (pos, pos))
         elseif char == '-' || isdigit(char)
             parse_number(s.src[i:end], pos)
@@ -56,10 +49,8 @@ function next_token(s::Source) :: Token
             if i < length(chars)
                 if chars[i+1] == '='
                     Token(ASSIGN, ":=", (pos,pos+1))
-                elseif isblank(chars[i+1])
-                    Token(PUNCTUATION, string(char), (pos, pos))
                 else
-                    Token(INVALID, char*chars[i+1], (pos, pos+1))
+                    Token(PUNCTUATION, string(char), (pos, pos))
                 end # if
             end # if
         else
@@ -69,7 +60,7 @@ function next_token(s::Source) :: Token
         final = res.span[2]
 
         s.curr_pos = final + 1
-        s.src = s.orig[s.curr_pos-1:end]
+        s.src = s.orig[s.curr_pos:end]
 
         return res
     end # for
