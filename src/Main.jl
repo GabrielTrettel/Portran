@@ -8,6 +8,7 @@ function main()
     file_to_parse = ARGS[1]
     io = read(file_to_parse, String)
 
+    println(io[204])
 
     tks = tokenise(io)
 

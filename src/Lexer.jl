@@ -18,10 +18,6 @@ isreservedword(s::String) = s in RESERVEDWORDS
 istype(s::String)         = s in TYPE_NAMES
 
 const IDENTIFIER_REGEX   = r"[A-Za-z_-]+[0-9]*"
-const CHAR_REGEX         = r"\'[A-Za-z0-9]\'"
-const STRING_REGEX       = r"\".*\""
-const FLOAT_NUMBER_REGEX = r"[0-9]+\.[0-9]+"
-const INT_NUMBER_REGEX   = r"[0-9]+"
 
 mutable struct Source
     orig::String
@@ -132,24 +128,20 @@ end # function
 
 function parse_str(src, pos)::Token
     chars = collect(src)
-    vec_chars :: Array{Char} = []
+    finish = 0
     for (index, char) in enumerate(chars)
         if char == '\"' && index != 1
-            push!(vec_chars, char)
+            finish = index
             break
         end # if
-
-        push!(vec_chars, char)
     end # for
 
-
-    len = length(vec_chars) - 1
-
-    if last(vec_chars) != '\"'
-        return Token(INVALID, String(vec_chars), (pos, pos+len))
+    if last(src[1:finish+1]) != '\"'
+        return Token(INVALID, src[1:finish+1], (pos, pos+finish))
     end # if
 
-    return Token(STRING, String(vec_chars), (pos, pos+len))
+    # return Token(STRING, String(vec_chars), (pos, pos+len))
+    return Token(STRING, src[1:finish+1], (pos, pos+finish))
 end # function
 
 function parse_rest(src, pos)::Token
@@ -191,7 +183,7 @@ function tokenise(src::String)::Tokens
 
     while true
         token = next_token(source)
-        if token.id == EOF || i > 100
+        if token.id == EOF
             push!(vec_tokens, token)
             break
         end # if
