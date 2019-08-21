@@ -1,6 +1,10 @@
 programa
 
-declare a, b, c.
+declare a, b, c, d.
+a := 10
+b := "Str"
+c := 3.1415
+d := 'a'
 escreva (c * a).
 
 fimprog

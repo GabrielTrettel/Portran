@@ -1,17 +1,18 @@
 module Lexer
 
-export parsecode
+export tokenise
 
 include("Token.jl")
 using .TokenDefinition
 
 const RESERVEDWORDS  = Set(["programa", "declare", "escreva", "leia", "fimprog", "inicio", "fim", "se", "entao", "senao", "fimse"])
+const TYPE_NAMES    = Set(["int", "real", "char", "texto", "boleano"])
 const LETTERS        = Set('a':'z')
 const BLANKS         = Set([' ', '\n', '\t', '\r'])
 const OPERATORS      = Set(["+", "-", "*", "/", "^", "==", "!=", "<", ">", "<=", ">="])
 const DIGITS         = Set('0':'9')
-const SEPARATORS     = Set(['(', ')', '{', '}', '.', ',', ':'])
-const SEP_STRING     = Set(["(", ")", "{", "}", ".", ",", ":"])
+const SEPARATORS     = Set(['(', ')', '{', '}', '.', ','])
+const SEP_STRING     = Set(["(", ")", "{", "}", ".", ","])
 
 isassing(s::String)       = s == ":="
 isblank(c::Char)          = c in BLANKS
@@ -19,6 +20,7 @@ isseparator(c::Char)      = c in SEPARATORS
 isseparator(s::String)    = s in SEP_STRING
 isoperator(s::String)     = s in OPERATORS
 isreservedword(s::String) = s in RESERVEDWORDS
+istype(s::String)         = s in TYPE_NAMES
 
 const IDENTIFIER_REGEX   = r"[A-Za-z_-]+[0-9]*"
 const CHAR_REGEX         = r"\'[A-Za-z0-9]\'"
@@ -26,113 +28,185 @@ const STRING_REGEX       = r"\".*\""
 const FLOAT_NUMBER_REGEX = r"[0-9]+\.[0-9]+"
 const INT_NUMBER_REGEX   = r"[0-9]+"
 
-function lexing(code::String)::Array{String}
-    vec_str::Array{String} = []
+mutable struct Source
+    orig::String
+    src::String
+    curr_pos::Integer
 
-    chars = collect(code)
-    vec_chars::Array{Char} = []
-    len_chars = length(chars)
+    function Source(src)
+        new(src, src, 1)
+    end # function
+end # struct
 
-    for (index, char) in enumerate(chars)
-        if isblank(char) || isspace(char)
-            if isempty(vec_chars)
-                continue
-            else
-                push!(vec_str, String(vec_chars))
-                vec_chars = []
-                continue
-            end # if
-        end # if
+function next_token(s::Source) :: Token
+    chars = collect(s.src)
 
-        if isseparator(char)
-            # If we get to a separator, first we push to `vec_str` what we have
-            # on `vec_chars` and reset `vec_chars`
-            push!(vec_str, String(vec_chars))
-            vec_chars = []
+    for (i, char) in enumerate(chars)
+        if s.curr_pos > length(s.orig) break end # if
 
+        pos = s.curr_pos
 
-            if char == ':'
-                # Check fisrt if we can check by index chars[index+1]
-                if index < len_chars
-                    if chars[index+1] == '='
-                        push!(vec_chars, char)
-                    else
-                        push!(vec_str, string(char))
-                    end # if
-                else # otherwise it's a normal separator
-                    push!(vec_str, string(char))
-                end # if
-            elseif char == '.'
-                # Check fisrt if we can check by index chars[index+1]
-                # if we can and it's a digit, that means that it's a
-                # float number literal
-                if index < len_chars
-                    if isdigit(chars[index+1])
-                        push!(vec_chars, char)
-                    else
-                        push!(vec_str, string(char))
-                    end # if
+        res = if isblank(char)
+            # s.curr_pos += length(char)
+            # s.src = s.orig[s.curr_pos:end]
+            # continue
+            Token(WHITESPACE, string(char), (pos, pos))
+        elseif char == '-' || isdigit(char)
+            parse_number(s.src[i:end], pos)
+        elseif char == '\''
+            parse_char(s.src[i:end], pos)
+        elseif char == '\"'
+            parse_str(s.src[i:end], pos)
+        elseif char == '#'
+            parse_comment(s.src[i:end], pos)
+        elseif isseparator(char)
+            Token(PUNCTUATION, string(char), (pos, pos))
+        elseif char == ':'
+            if i < length(chars)
+                if chars[i+1] == '='
+                    Token(ASSIGN, ":=", (pos,pos+1))
+                elseif isblank(chars[i+1])
+                    Token(PUNCTUATION, string(char), (pos, pos))
                 else
-                    push!(vec_str, string(char))
+                    Token(INVALID, char*chars[i+1], (pos, pos+1))
                 end # if
-            else
-                push!(vec_str, string(char))
             end # if
         else
-            push!(vec_chars, char)
+            parse_rest(s.src[i:end], pos)
         end # if
+
+        final = res.span[2]
+
+        s.curr_pos = final + 1
+        s.src = s.orig[s.curr_pos-1:end]
+
+        return res
     end # for
-    return vec_str
+    Token(EOF, "", (s.curr_pos, s.curr_pos))
 end # function
 
-function parsecode(code::String)::Array{Token}
-    if isempty(code)
-        return []
+function parse_number(src, pos)::Token
+    chars = collect(src)
+    vec_chars::Array{Char} = []
+
+    has_dot = false
+
+    for (i, char) in enumerate(chars)
+        if isdigit(char)
+            push!(vec_chars, char)
+        elseif char == '-' && i == 1
+            if i < length(chars)
+                if isdigit(chars[i+1])
+                    push!(vec_chars, char)
+                else
+                    return parse_rest(src, pos)
+                end # if
+            else
+                return parse_rest(src, pos)
+            end # if
+        elseif char == '.'
+            has_dot = true
+            if i < length(chars)
+                if isdigit(chars[i+1])
+                    push!(vec_chars, char)
+                end # if
+            end # if
+        else
+            break
+        end # if
+    end # for
+
+    len = length(vec_chars) - 1
+
+    if has_dot
+        return Token(FLOAT_NUMBER, String(vec_chars), (pos, pos+len))
+    else
+        return Token(INT_NUMBER, String(vec_chars), (pos, pos+len))
+    end # if
+end # function
+
+function parse_char(src, pos)::Token
+    chars = collect(src)
+
+    if chars[3] != '\''
+        return Token(INVALID, src[1:3], (pos, pos+2))
     end # if
 
-    tokens = []
-    vec_str = lexing(code)
+    return Token(CHAR, src[1:3], (pos, pos+2))
+end # function
 
-    for str in vec_str
-        # At this point `str` is small enought to have one and only one match
-        # in match expression
-        if isreservedword(str)
-            push!(tokens, Token(RESERVED_WORD, str))
-        elseif isassing(str)
-            push!(tokens, Token(ASSIGN, str))
-        elseif isseparator(str)
-            push!(tokens, Token(PUNCTUATION, str))
-        elseif isoperator(str)
-            push!(tokens, Token(OPERATOR, str))
-        elseif occursin(IDENTIFIER_REGEX, str)
-            m = match(IDENTIFIER_REGEX, str)
-            if length(str) == length(m.match)
-                push!(tokens, Token(IDENTIFIER, m.match))
-            else
-                push!(tokens, Token(INVALID, str))
-            end # if
-        elseif occursin(FLOAT_NUMBER_REGEX, str)
-            m = match(FLOAT_NUMBER_REGEX, str)
-            if length(str) == length(m.match)
-                push!(tokens, Token(IDENTIFIER, m.match))
-            else
-                push!(tokens, Token(INVALID, str))
-            end # if
-        elseif occursin(INT_NUMBER_REGEX, str)
-            m = match(INT_NUMBER_REGEX, str)
-            if length(str) == length(m.match)
-                push!(tokens, Token(IDENTIFIER, m.match))
-            else
-                push!(tokens, Token(INVALID, str))
-            end # if
-            push!(tokens, Token(INT_NUMBER, m.match))
-        else # If there is no match, defaults do INVALID Token
-            if !isempty(str)
-                push!(tokens, Token(INVALID, str))
-            end # if
+function parse_str(src, pos)::Token
+    chars = collect(src)
+    vec_chars :: Array{Char} = []
+    for (index, char) in enumerate(chars)
+        if char == '\"' && index != 1
+            push!(vec_chars, char)
+            break
         end # if
+
+        push!(vec_chars, char)
     end # for
 
-    return tokens
+
+    len = length(vec_chars) - 1
+
+    if last(vec_chars) != '\"'
+        return Token(INVALID, String(vec_chars), (pos, pos+len))
+    end # if
+
+    return Token(STRING, String(vec_chars), (pos, pos+len))
 end # function
+
+function parse_rest(src, pos)::Token
+    chars = collect(src)
+    vec_chars :: Array{Char} = []
+
+    for char in chars
+        if isblank(char) || isseparator(char)
+            break
+        end # if
+        push!(vec_chars, char)
+    end # for
+
+    str = String(vec_chars)
+    len = length(str) -1
+
+    if isreservedword(str)
+        return Token(RESERVED_WORD, str, (pos, pos+len))
+    elseif istype(str)
+        return Token(TYPE, str, (pos, pos+len))
+    elseif isoperator(str)
+        return Token(OPERATOR, str, (pos, pos+len))
+    elseif occursin(IDENTIFIER_REGEX, str)
+        m = match(IDENTIFIER_REGEX, str)
+        if len+1 == length(m.match)
+            return Token(IDENTIFIER, m.match, (pos, pos+len))
+        else
+            return Token(INVALID, m.match, (pos, pos+length(m.match)))
+        end # if
+    else
+        return Token(INVALID, str, (pos, pos+len))
+    end # if
+end # function
+
+function tokenise(src::String)::Tokens
+    i = 0
+    source = Source(src)
+    vec_tokens :: Array{Token} = []
+
+    while true
+        token = next_token(source)
+        if token.id == EOF || i > 100
+            push!(vec_tokens, token)
+            break
+        end # if
+        push!(vec_tokens, token)
+        i += 1
+    end # while
+
+    filter!(x -> x.id != WHITESPACE, vec_tokens)
+
+    Tokens(vec_tokens)
+end # function
+
 end # module

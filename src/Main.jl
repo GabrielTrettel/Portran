@@ -9,12 +9,13 @@ function main()
     file_to_parse = ARGS[1]
     io = read(file_to_parse, String)
 
-    tokens = parsecode(io)
+    # printstyled(io; color=:green)
 
-    for token in tokens
+    tks = tokenise(io)
+
+    for token in tks.tokens
         println(token)
     end # for
-
 end # function main
 
 

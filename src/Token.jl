@@ -1,6 +1,8 @@
 module TokenDefinition
 
 export Token,
+       Tokens,
+       next_token,
        TokenIDS,
        IDENTIFIER,
        ASSIGN,
@@ -9,7 +11,12 @@ export Token,
        OPERATOR,
        RESERVED_WORD,
        PUNCTUATION,
-       INVALID
+       CHAR,
+       STRING,
+       TYPE,
+       INVALID,
+       WHITESPACE,
+       EOF
 
 @enum TokenIDS begin
    IDENTIFIER     = 0
@@ -19,7 +26,11 @@ export Token,
    OPERATOR       = 4
    RESERVED_WORD  = 5
    PUNCTUATION    = 6
-   INVALID        = 7
+   CHAR           = 7
+   STRING         = 8
+   TYPE           = 9
+   INVALID        = 10
+   WHITESPACE     = 11
    EOF            = -1
 end # enum
 
@@ -27,17 +38,19 @@ end # enum
 mutable struct Token
     id   :: TokenIDS
     text :: String
-    function Token(id=TokenIDS.INVALID, txt="")
-        new(id, txt)
+    span :: Tuple{Integer, Integer}
+    # line ::
+    function Token(id=TokenIDS.INVALID, txt="", span=(0, 0))
+        new(id, txt, span)
     end # function
 end # struct
 
 
 mutable struct Tokens
-   tokens :: Vector{Token}
+   tokens :: Array{Token}
    pos    :: Integer
    total  :: Integer
-   function Tokens(tks::Vector{Token})
+   function Tokens(tks::Array{Token})
       new(tks, 1, length(tks))
    end
 end
@@ -50,8 +63,8 @@ function next_token(t::Tokens)
 end
 
 # Base.show is invoked in Atom and @show
-Base.show(io::IO, t::Token) = println(io, "`$(t.text)` is $(t.id)")
+Base.show(io::IO, t::Token) = println(io, "`$(t.text)` is $(t.id) start: $(t.span[1]) end: $(t.span[2])")
 # Base.println is invoked in println call
-Base.println(t::Token) = println("`$(t.text)` is $(t.id)")
+Base.println(t::Token) = println("`$(t.text)` is $(t.id) start: $(t.span[1]) end: $(t.span[2])")
 
 end # module
