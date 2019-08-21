@@ -11,6 +11,7 @@
    TYPE           = 9
    INVALID        = 10
    WHITESPACE     = 11
+   CFLUX          = 12
    EOF            = -1
 end # enum
 
