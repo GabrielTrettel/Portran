@@ -38,16 +38,16 @@ mutable struct Tokens
 end
 
 function next!(t::Tokens)
+   if t.pos == t.total
+      error("EOF reached and parser not finished")
+   end
+
    t.pos += 1
    v = t.tokens[ t.pos ]
    println("$CGREEN $v $CEND")
 
    if v.id == INVALID
       error("Invalid token $(v.text)", v)
-   end
-
-   if t.pos == t.total
-      return t.tokens[ t.pos ]
    end
 
    return v

@@ -1,10 +1,15 @@
-programa
+programa teste
+   declare a1, a2, a3: int;
+   leia(a1);
+   leia(a2);
 
-declare a, b, c, d : int.
-a := 10
-b := "Str"
-c := 3.1415
-d := 'a'
-escreva (c * a).
+   se a1 < a2 entao
+      a3 := a1 + a2;
+   senao
+      a3 := a2;
+      se a1 > 2 entao
+         a1 := 7;
+      fimse
+   fimse
 
 fimprog

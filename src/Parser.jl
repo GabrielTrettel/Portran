@@ -44,7 +44,7 @@ function syntactic_parse(tokens::Tokens)
     if t.id == RESERVED_WORD && t.text == "programa"
         t = next!(tokens)
         if t.id == IDENTIFIER
-            bloco!(tokens, env)
+            bloco!(tokens, env, ["fimprog"])
 
         else
             error("Parsing Error - Expecting name of program",t)
@@ -101,7 +101,7 @@ end
 
 
 
-function bloco!(tokens::Tokens, env)
+function bloco!(tokens::Tokens, env, expected_end)
     t = next!(tokens)
 
     if t.id==RESERVED_WORD && t.text=="declare"
@@ -112,10 +112,13 @@ function bloco!(tokens::Tokens, env)
 
     elseif t.id==IDENTIFIER
         cmd_attr!(tokens, env)
+
+    elseif t.id==CFLUX
+        control_flux_parser!(tokens, env)
     end
 
-    if t.text!="fimprog"
-        bloco!(tokens, env)
+    if !any(x->x==t.text, expected_end)
+        bloco!(tokens, env, expected_end)
     end
 end
 
@@ -188,7 +191,8 @@ end
 
 function par_expr!(tokens::Tokens, env, expecting=nothing)
     expr = expr_to_text(tokens, env)
-    expected_type = type(env, expecting)
+
+    expected_type = typeof(expecting)==Token ? type(env, expecting) : expecting
 
     if expr == ""
         roll_back(tokens)
@@ -220,7 +224,7 @@ function par_expr!(tokens::Tokens, env, expecting=nothing)
         end
     catch
         atype = map_julia_to_por[typeof(eval_value)]
-        error("Trying to assign to $(expecting.text) an expression with incompatible types\n\t\t$(type(env,expecting)) with $atype", expecting)
+        error("Trying to cast an expression with incompatible types: $expected_type with $atype", expecting)
     end
 
     roll_back(tokens)
@@ -262,4 +266,32 @@ function expr_to_text(tokens::Tokens, env)
         t = next!(tokens)
     end # while
     return expr
+end
+
+function control_flux_parser!(tokens, env)
+    t = current(tokens)
+    if t.text == "se"
+        parse_se!(tokens, env)
+    elseif t.text == "enquanto"
+        parse_enquanto!(tokens, env)
+    elseif t.text == "faça"
+        parse_faca!(tokens, env)
+    end
+end
+
+
+function parse_se!(tokens, env)
+    next!(tokens)
+    par_expr!(tokens, env)
+    t = next!(tokens)
+    if t.id != CFLUX && t.id != "entao"
+        error("Missing 'então' after expression in 'if' statement")
+    end
+    bloco!(tokens, env, ["fimse", "senao"])
+
+    if current(tokens) == "senao"
+        next!(tokens)
+        bloco!(tokens, env, ["fimse", "senao"])
+    end
+    @show current(tokens)
 end

@@ -20,4 +20,12 @@ programa teste2
     escreva("D é igual a ").
     escreva(d).
 
-fimprog.
+fimprog
+
+
+a1 := 3.
+b1 := 2.
+c2 := a + b * 5.
+escreva(a).
+escreva(b).
+escreva(c).

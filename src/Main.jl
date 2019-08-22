@@ -11,9 +11,9 @@ function main()
 
     tks = tokenise(io)
 
-    # for token in tks.tokens
-    #     println("$CRED",token)
-    # end # for
+    for token in tks.tokens
+        println("$CRED",token)
+    end # for
 
     print("$CEND \n\n")
     syntactic_parse(tks)

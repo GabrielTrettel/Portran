@@ -1,7 +1,7 @@
 include("Token.jl")
 
 const RESERVEDWORDS  = Set(["programa", "declare", "escreva", "leia", "fimprog"])
-const CONTROL_FLUX   = Set(["se", "então", "senão", "fimse", "enquanto", "faça", "fimenq", "fimfaça"])
+const CONTROL_FLUX   = Set(["se", "entao", "senao", "fimse", "enquanto", "faca", "fimenq", "fimfaca"])
 const BOOL_VALUE     = Set(["Verdadeiro", "Falso", "V", "F"])
 const TYPE_NAMES     = Set(["int", "real", "char", "texto", "boleano"])
 const BLANKS         = Set([' ', '\n', '\t', '\r'])

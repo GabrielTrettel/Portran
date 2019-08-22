@@ -1,12 +1,20 @@
 programa teste
-   declare a1, b1, c2, d1, d2, d3 : int;
+   declare a1, b1, c2, d1, d2, d3, d4 : int;
    declare um_real_qualquer : real;
+   declare fff : boleano;
    leia(a1);
-   a1 := 10;
+
    b1 := a1;
-   c2 := b1;
+   c2 := 7;
    d1 := 10 + (5 * (3 + 7));
    d2 := 10 / 5;
    d3 := a1 * (d2 + c2 * 5);
-   um_real_qualquer := 10 / 7;
+   um_real_qualquer := 10 / 5;
+
+   a1 := um_real_qualquer;
+
+   fff := F || V;
+
+   d4 := a1 * (d2 + c2 * 5);
+
 fimprog
