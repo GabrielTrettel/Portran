@@ -1,13 +1,13 @@
 include("Token.jl")
 include("Errors.jl")
 
-
+using JSON
 
 const table = Dict("int"=>INT_NUMBER, "real"=>FLOAT_NUMBER, "char"=>CHAR, "texto"=>STRING, "boleano"=>BOOL)
 
 iscolon(t::Token)   = t.id==PUNCTUATION && t.text==":"
 iscoma(t::Token)    = t.id==PUNCTUATION && t.text==","
-isperiod(t::Token)  = t.id==PUNCTUATION && t.text=="."
+isperiod(t::Token)  = t.id==PUNCTUATION && t.text==";"
 isassign(t::Token)  = t.id==ASSIGN && t.text==":="
 isliteral(t::Token) = t.id==INT_NUMBER || t.id==FLOAT_NUMBER || t.id==CHAR || t.id==STRING
 
@@ -46,6 +46,8 @@ function syntactic_parse(tokens::Tokens)
     if t.id != EOF
         error("Program finished but file has content",t)
     end
+
+    println(json(env, 4))
 end
 
 
@@ -55,7 +57,9 @@ function declare!(tokens::Tokens, env)
     current_declared_vars::Array{var_state} = []
 
     while t.id == IDENTIFIER || iscoma(t)
-        push!(current_declared_vars, var_state(t.text))
+        if t.id == IDENTIFIER
+            push!(current_declared_vars, var_state(t.text))
+        end
         t = next!(tokens)
     end
 
@@ -105,6 +109,7 @@ end
 
 
 function cmd_io!(tokens::Tokens, env, io)
+    t = next!(tokens)
     if t.id==PUNCTUATION && t.text=="("
         t = next!(tokens)
         if t.id==IDENTIFIER
@@ -139,16 +144,17 @@ end
 function cmd_attr!(tokens::Tokens, env)
     # var := literal | expressão
     variable = current(tokens)
-    if haskey(env, t.name)
+
+    if haskey(env, variable.text)
         t = next!(tokens)
         if isassign(t)
             t = next!(tokens)
             if isliteral(t)
-                if type_match(variable, t, env)
+                if type_match(variable,t, env)
                     env[variable.text].value = t.text
                     env[variable.text].init = true
                 else # not compatible types
-                    error("Mismatching types between $(variable.text) and literal of type $(t.text)", t)
+                    error("Mismatching types between $(variable.text) and literal of type $(t.id)", t)
                 end #type_match
             else # should be expr
                 par_expr!(tokens, env)
@@ -161,8 +167,7 @@ function cmd_attr!(tokens::Tokens, env)
         end #isassing
 
     else #not has key
-        error("Undefined vaiable $(t.name)", t)
-
+        error("Undefined vaiable $(variable.text)", variable)
     end # haskey
 end
 

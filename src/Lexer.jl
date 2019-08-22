@@ -6,9 +6,9 @@ const BOOL_VALUE     = Set(["Verdadeiro", "Falso", "V", "F"])
 const TYPE_NAMES     = Set(["int", "real", "char", "texto", "boleano"])
 const BLANKS         = Set([' ', '\n', '\t', '\r'])
 const OPERATORS      = Set(["+", "-", "*", "/", "^", "==", "!=", "<", ">", "<=", ">="])
-const SEPARATORS     = Set(['(', ')', '{', '}', '.', ',', ':'])
+const SEPARATORS     = Set(['(', ')', '{', '}', ';', ',', ':'])
 
-isboolliteral(str::String)= s in BOOL_VALUE
+isboolliteral(s::String)  = s in BOOL_VALUE
 isblank(c::Char)          = c in BLANKS
 isseparator(c::Char)      = c in SEPARATORS
 isoperator(s::String)     = s in OPERATORS

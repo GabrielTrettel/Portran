@@ -33,18 +33,18 @@ mutable struct Tokens
    pos    :: Integer
    total  :: Integer
    function Tokens(tks::Array{Token})
-      new(tks, 1, length(tks))
+      new(tks, 0, length(tks))
    end
 end
 
 function next!(t::Tokens)
+   t.pos += 1
    v = t.tokens[ t.pos ]
    println("$CGREEN $v $CEND")
 
    if t.pos == t.total
       return t.tokens[ t.pos ]
    end
-   t.pos += 1
 
    return v
 end
