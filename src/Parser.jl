@@ -4,13 +4,16 @@ include("Errors.jl")
 using JSON
 
 const table = Dict("int"=>INT_NUMBER, "real"=>FLOAT_NUMBER, "char"=>CHAR, "texto"=>STRING, "boleano"=>BOOL)
+const map_por_to_julia = Dict("int"=>Int64, "real"=>Float64, "boleano"=>Bool)
+const map_julia_to_por = Dict(Int64=>"int", Float64=>"real", Bool=>"boleano")
+
 
 iscolon(t::Token)   = t.id==PUNCTUATION && t.text==":"
 iscoma(t::Token)    = t.id==PUNCTUATION && t.text==","
 isperiod(t::Token)  = t.id==PUNCTUATION && t.text==";"
 isassign(t::Token)  = t.id==ASSIGN && t.text==":="
-isliteral(t::Token) = t.id==INT_NUMBER || t.id==FLOAT_NUMBER || t.id==CHAR || t.id==STRING
-isnumber(t::Token, env)  = (table[env[t.text].type] == INT_NUMBER) || (table[env[t.text].type] == FLOAT_NUMBER)
+isliteral(t::Token) = t.id==INT_NUMBER || t.id==FLOAT_NUMBER || t.id==CHAR || t.id==STRING || t.id==BOOL
+isnumber(t::Token, env)  = (table[env[t.text].type] == INT_NUMBER) || (table[env[t.text].type] == FLOAT_NUMBER) || (table[env[t.text].type] == BOOL)
 
 type_match(t::Token, lit::Token, env) = table[env[t.text].type] == lit.id
 isop(t::Token) = t.id == OPERATOR || (t.text == ")" || t.text == "(")
@@ -131,7 +134,7 @@ function cmd_io!(tokens::Tokens, env, io)
                     end
                 end # io
             else
-                error("AS:Trying to read from undeclared variable $(t.text)", t)
+                error("Trying to read from undeclared variable $(t.text)", t)
             end # env
 
         else # id
@@ -166,15 +169,11 @@ function cmd_attr!(tokens::Tokens, env)
                     error("Mismatching types between $(variable.text) and literal of type $(t.id)", t)
                 end #type_match
             else # should be expr
-                a_value,a_type = par_expr!(tokens, env)
-                if type(env, variable) == a_type || (type(env, variable)=="real" && a_type=="int")
-                    value!(env, variable, string(a_value))
-                    init!(env, variable, true)
-                else
-                    error("Trying to assign to $(variable.text) an expression with incompatible types\n\t\t$(type(env,variable)) with $a_type", t)
-                end
-
+                a_value, a_type = par_expr!(tokens, env, variable)
+                value!(env, variable, string(a_value))
+                init!(env, variable, true)
             end # if is literal
+
             t = next!(tokens)
             if !isperiod(t) error("Missing period", t) end
         else # isn't assign symbol
@@ -188,54 +187,79 @@ end
 
 
 function par_expr!(tokens::Tokens, env, expecting=nothing)
+    expr = expr_to_text(tokens, env)
+    expected_type = type(env, expecting)
+
+    if expr == ""
+        roll_back(tokens)
+        return "", type(env, expecting)
+    end
+
+    @show expr
+    eval_value = nothing
+    could_be_eval = false
+    try
+        eval_value = Meta.parse(expr)
+        try
+            eval_value = eval(eval_value)
+            could_be_eval = true
+        catch
+            eval_value = expr
+        end
+    catch
+        error("Failed to eval expression", current(tokens))
+    end
+
+    if typeof(eval_value) <: Number && abs(eval_value) == Inf error("Division by zero is not allowed", previous(tokens)) end
+
+    atype = ""
+    try
+        if could_be_eval
+            eval_value = map_por_to_julia[expected_type](eval_value)
+            atype = map_julia_to_por[typeof(eval_value)]
+        end
+    catch
+        atype = map_julia_to_por[typeof(eval_value)]
+        error("Trying to assign to $(expecting.text) an expression with incompatible types\n\t\t$(type(env,expecting)) with $atype", expecting)
+    end
+
+    roll_back(tokens)
+    return eval_value, atype
+end
+
+
+function expr_to_text(tokens::Tokens, env)
     t = current(tokens)
     expr = ""
+    l = t.line
 
     while isop(t) || isliteral(t) || t.id==IDENTIFIER
+        if t.line != l
+            error("Expressions can't spawn to multiple lines", t)
+        end
         val = t.text
         if t.id == IDENTIFIER
             if !haskey(env, t.text)
                 error("Using undefined variable $(t.text)", t)
             else # haskey
                 if !isnumber(t, env)
-                    error("Trying to use non numeric values in expression", t)
+                    error("Trying to use non numeric or logic values in expression", t)
                 end #isnumber
                 if !init(env, t)
                     error("Trying to use non uninitialized variable $(t.text)", t)
                 end #init
-                val = value(env, t)
+                if value(env, t) != ""
+                    val = value(env, t)
+                end
             end #haskey
-
         end #if IDENTIFIER
+
+        if val == "V" val = "true"
+        elseif val == "F" val = "false"
+        end
 
         expr *= val
         t = next!(tokens)
-    end
-
-    eval_value = nothing
-    try
-        symbols = Meta.parse(expr)
-        eval_value = eval(symbols)
-    catch
-        error("Failed to eval expression", t)
-    end
-
-    try
-        eval_value = Int64(eval_value)
-    catch end
-
-    atype = ""
-    if eval_value == Inf error("Division by zero is not allowed", previous(tokens)) end
-
-    a_value = typeof(eval_value)
-    if a_value <: Integer
-        atype="int"
-    elseif a_value <: Real
-        atype="real"
-    elseif a_value <: Bool
-        atype="boleano"
-    end
-
-    roll_back(tokens)
-    return eval_value, atype
+    end # while
+    return expr
 end

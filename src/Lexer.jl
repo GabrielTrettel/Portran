@@ -5,7 +5,7 @@ const CONTROL_FLUX   = Set(["se", "então", "senão", "fimse", "enquanto", "faç
 const BOOL_VALUE     = Set(["Verdadeiro", "Falso", "V", "F"])
 const TYPE_NAMES     = Set(["int", "real", "char", "texto", "boleano"])
 const BLANKS         = Set([' ', '\n', '\t', '\r'])
-const OPERATORS      = Set(["+", "-", "*", "/", "^", "==", "!=", "<", ">", "<=", ">="])
+const OPERATORS      = Set(["+", "-", "*", "/", "^", "==", "!=", "<", ">", "<=", ">=", "||", "!", "&&"])
 const SEPARATORS     = Set(['(', ')', '{', '}', ';', ',', ':'])
 
 isboolliteral(s::String)  = s in BOOL_VALUE
