@@ -199,7 +199,6 @@ function par_expr!(tokens::Tokens, env, expecting=nothing)
         return "", type(env, expecting)
     end
 
-    @show expr
     eval_value = nothing
     could_be_eval = false
     try
@@ -274,7 +273,7 @@ function control_flux_parser!(tokens, env)
         parse_se!(tokens, env)
     elseif t.text == "enquanto"
         parse_enquanto!(tokens, env)
-    elseif t.text == "faça"
+    elseif t.text == "faca"
         parse_faca!(tokens, env)
     end
 end
@@ -289,9 +288,8 @@ function parse_se!(tokens, env)
     end
     bloco!(tokens, env, ["fimse", "senao"])
 
-    if current(tokens) == "senao"
-        next!(tokens)
-        bloco!(tokens, env, ["fimse", "senao"])
+    if current(tokens).text == "senao"
+        bloco!(tokens, env, ["fimse"])
     end
-    @show current(tokens)
+
 end

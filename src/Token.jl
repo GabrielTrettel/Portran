@@ -44,12 +44,12 @@ function next!(t::Tokens)
 
    t.pos += 1
    v = t.tokens[ t.pos ]
-   println("$CGREEN $v $CEND")
 
    if v.id == INVALID
       error("Invalid token $(v.text)", v)
    end
 
+   println("$CGREEN $v $CEND")
    return v
 end
 
