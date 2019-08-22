@@ -238,7 +238,9 @@ function expr_to_text(tokens::Tokens, env)
 
     while isop(t) || isliteral(t) || t.id==IDENTIFIER
         if t.line != l
-            error("Expressions can't spawn to multiple lines", t)
+            roll_back(tokens)
+            break
+            # error("Expressions can't spawn to multiple lines", t)
         end
         val = t.text
         if t.id == IDENTIFIER
@@ -283,13 +285,26 @@ function parse_se!(tokens, env)
     next!(tokens)
     par_expr!(tokens, env)
     t = next!(tokens)
-    if t.id != CFLUX && t.id != "entao"
-        error("Missing 'então' after expression in 'if' statement")
-    end
+
+    # if t.id != CFLUX && t.id != "entao"
+    #     error("Missing 'então' after expression in 'if' statement")
+    # end
     bloco!(tokens, env, ["fimse", "senao"])
 
     if current(tokens).text == "senao"
         bloco!(tokens, env, ["fimse"])
     end
+end
 
+
+function parse_enquanto!(tokens, env)
+    next!(tokens)
+    par_expr!(tokens, env, "boleano")
+    t = next!(tokens)
+
+    # if t.id != CFLUX && t.id != "faca"
+    #     error("Missing 'faca' after expression in 'enquanto' statement")
+    # end
+    bloco!(tokens, env, ["fimenq"])
+    @show current(tokens)
 end
