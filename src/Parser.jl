@@ -10,9 +10,10 @@ iscoma(t::Token)    = t.id==PUNCTUATION && t.text==","
 isperiod(t::Token)  = t.id==PUNCTUATION && t.text==";"
 isassign(t::Token)  = t.id==ASSIGN && t.text==":="
 isliteral(t::Token) = t.id==INT_NUMBER || t.id==FLOAT_NUMBER || t.id==CHAR || t.id==STRING
+isnumber(t::Token, env)  = (table[env[t.text].type] == INT_NUMBER) || (table[env[t.text].type] == FLOAT_NUMBER)
 
 type_match(t::Token, lit::Token, env) = table[env[t.text].type] == lit.id
-
+isop(t::Token) = t.id == OPERATOR || (t.text == ")" || t.text == "(")
 
 mutable struct var_state
     name   :: String
@@ -23,6 +24,14 @@ mutable struct var_state
         new(name, init, type, value)
     end
 end
+
+type(env, t)  = env[t.text].type
+value(env, t) = env[t.text].value
+init(env, t)  = env[t.text].init
+
+type!(env, t, v)  = env[t.text].type = v
+value!(env, t, v) = env[t.text].value = v
+init!(env, t, v)  = env[t.text].init = v
 
 
 function syntactic_parse(tokens::Tokens)
@@ -115,9 +124,9 @@ function cmd_io!(tokens::Tokens, env, io)
         if t.id==IDENTIFIER
             if haskey(env, t.text)
                 if io == "leia"
-                    env[t.text].init = true
+                    init!(env, t, true)
                 else # escreva
-                    if env[t.text].init == false
+                    if init(t, env)
                         error("Trying to print uninitialized variable", t)
                     end
                 end # io
@@ -149,17 +158,23 @@ function cmd_attr!(tokens::Tokens, env)
         t = next!(tokens)
         if isassign(t)
             t = next!(tokens)
-            if isliteral(t)
+            if isliteral(t) && !isop(next(tokens))
                 if type_match(variable,t, env)
-                    env[variable.text].value = t.text
-                    env[variable.text].init = true
+                    value!(env, variable, t.text)
+                    init!(env, variable, true)
                 else # not compatible types
                     error("Mismatching types between $(variable.text) and literal of type $(t.id)", t)
                 end #type_match
             else # should be expr
-                par_expr!(tokens, env)
-            end # if is literal
+                a_value,a_type = par_expr!(tokens, env)
+                if type(env, variable) == a_type || (type(env, variable)=="real" && a_type=="int")
+                    value!(env, variable, string(a_value))
+                    init!(env, variable, true)
+                else
+                    error("Trying to assign to $(variable.text) an expression with incompatible types\n\t\t$(type(env,variable)) with $a_type", t)
+                end
 
+            end # if is literal
             t = next!(tokens)
             if !isperiod(t) error("Missing period", t) end
         else # isn't assign symbol
@@ -172,7 +187,55 @@ function cmd_attr!(tokens::Tokens, env)
 end
 
 
-function par_expr!(tokens::Tokens, env)
-    #TODO
-    1
+function par_expr!(tokens::Tokens, env, expecting=nothing)
+    t = current(tokens)
+    expr = ""
+
+    while isop(t) || isliteral(t) || t.id==IDENTIFIER
+        val = t.text
+        if t.id == IDENTIFIER
+            if !haskey(env, t.text)
+                error("Using undefined variable $(t.text)", t)
+            else # haskey
+                if !isnumber(t, env)
+                    error("Trying to use non numeric values in expression", t)
+                end #isnumber
+                if !init(env, t)
+                    error("Trying to use non uninitialized variable $(t.text)", t)
+                end #init
+                val = value(env, t)
+            end #haskey
+
+        end #if IDENTIFIER
+
+        expr *= val
+        t = next!(tokens)
+    end
+
+    eval_value = nothing
+    try
+        symbols = Meta.parse(expr)
+        eval_value = eval(symbols)
+    catch
+        error("Failed to eval expression", t)
+    end
+
+    try
+        eval_value = Int64(eval_value)
+    catch end
+
+    atype = ""
+    if eval_value == Inf error("Division by zero is not allowed", previous(tokens)) end
+
+    a_value = typeof(eval_value)
+    if a_value <: Integer
+        atype="int"
+    elseif a_value <: Real
+        atype="real"
+    elseif a_value <: Bool
+        atype="boleano"
+    end
+
+    roll_back(tokens)
+    return eval_value, atype
 end
