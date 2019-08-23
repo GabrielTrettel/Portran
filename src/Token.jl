@@ -49,8 +49,6 @@ function next!(t::Tokens)
    if v.id == INVALID
       error("Invalid token $(v.text)", v)
    end
-
-   # println("$CGREEN $v $CEND")
    return v
 end
 

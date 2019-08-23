@@ -1,8 +1,6 @@
 include("Token.jl")
 include("Errors.jl")
 
-using JSON
-
 const table = Dict("int"=>INT_NUMBER, "real"=>FLOAT_NUMBER, "char"=>CHAR, "texto"=>STRING, "boleano"=>BOOL)
 const map_por_to_julia = Dict("int"=>Int64, "real"=>Float64, "boleano"=>Bool)
 const map_julia_to_por = Dict(Int64=>"int", Float64=>"real", Bool=>"boleano")
@@ -58,8 +56,7 @@ function syntactic_parse(tokens::Tokens)::Dict
     if t.id != EOF
         error("Program finished but file has content.",t)
     end
-
-    println(json(env, 4))
+    reset!(tokens) # reset counter of token
     return env
 end
 
@@ -139,8 +136,6 @@ function cmd_io!(tokens::Tokens, env, io)
                 if io == "leia"
                     init!(env, t, true)
                 else # escreva
-                    println(json(env, 4))
-
                     if !init(env, t)
                         error("Trying to print uninitialized variable `$(t.text)`", t)
                     end

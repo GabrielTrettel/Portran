@@ -54,17 +54,14 @@ function hasio(tks::Tokens)::Bool
 end # hasio
 
 
-function transpile(tks::Tokens, env::Dict)
-    reset!(tks)
-
+function transpile(tks::Tokens, env::Dict, fname)
     txt = headers(tks)
     next!(tks)
     programm_name = next!(tks).text
-
     txt *= bloco2str!(tks, env, ["fimprog"], T)
 
     txt *= "\n}\n"
-    write(programm_name*".c", txt)
+    write(fname, txt)
 end # transpile
 
 
@@ -84,7 +81,6 @@ function bloco2str!(tokens::Tokens, env, expected_end, initial_char="")
         text = control_flux_parser2str!(tokens, env, initial_char)
     end
 
-    @show text
     if !any(x->x==t.text, expected_end)
         return text * bloco2str!(tokens, env, expected_end, initial_char)
     else
@@ -167,8 +163,7 @@ function expr2str!(tokens, env)
     if t.id==BOOL
         text = text=="V" ? "true" : "false"
     end
-
-    expr *= text * w * expr2str!(tokens, env)
+    return expr * text * w * expr2str!(tokens, env)
 end
 
 
@@ -196,25 +191,19 @@ function se2txt!(tokens, env, initial_char)
         text *= initial_char*"} else {\n"
         text *= bloco2str!(tokens, env, ["fimse"], initial_char*T)
     end
-
-    text *= initial_char*"}\n"
-    return text
+    return text * initial_char*"}\n"
 end
 
 function enquanto2str!(tokens::Tokens, env, initial_char)
     expr = expr2str!(tokens, env)
     blk = bloco2str!(tokens, env, ["fimenq"], initial_char*T)
     text = initial_char*"while ($expr) {\n$blk"
-    text *= initial_char*"}\n"
-
-    return text
+    return text * initial_char*"}\n"
 end
 
 
 function parse_faca!(tokens, env, initial_char)
-    # next!(tokens)
     blk = bloco2str!(tokens, env, ["durante"], initial_char*T)
     expr = expr2str!(tokens, env)
-
-    text = initial_char*"do {\n $blk$initial_char{ while ($expr);\n"
+    return initial_char*"do {\n $blk$initial_char} while ($expr);\n"
 end
