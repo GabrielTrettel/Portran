@@ -139,8 +139,10 @@ function cmd_io!(tokens::Tokens, env, io)
                 if io == "leia"
                     init!(env, t, true)
                 else # escreva
-                    if init(t, env)
-                        error("Trying to print uninitialized variable.", t)
+                    println(json(env, 4))
+
+                    if !init(env, t)
+                        error("Trying to print uninitialized variable `$(t.text)`", t)
                     end
                 end # io
             else

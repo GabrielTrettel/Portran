@@ -54,6 +54,9 @@ function next!(t::Tokens)
    return v
 end
 
+function reset!(t::Tokens)
+   t.pos = 0
+end
 
 next(t::Tokens)      = t.tokens[(t.pos + 1)]
 previous(t::Tokens)  = t.tokens[(t.pos - 1)]

@@ -3,7 +3,7 @@ include("Token.jl")
 istype(tk::Token)      = tk.id == TYPE
 isident(tk::Token)     = tk.id == IDENTIFIER
 isdeclare(tk::Token)   = tk.id == RESERVED_WORD && tk.text == "declare"
-isimprime(tk::Token)   = tk.id == RESERVED_WORD && tk.text == "imprime"
+isimprime(tk::Token)   = tk.id == RESERVED_WORD && tk.text == "escreva"
 isleia(tk::Token)      = tk.id == RESERVED_WORD && tk.text == "leia"
 isassign(tk::Token)    = tk.id == ASSIGN
 isse(tk::Token)        = tk.id == CFLUX && tk.text == "se"
@@ -12,7 +12,9 @@ isenquanto(tk::Token)  = tk.id == CFLUX && tk.text == "enquanto"
 isfaca(tk::Token)      = tk.id == CFLUX && tk.text == "faca"
 isdurante(tk::Token)   = tk.id == CFLUX && tk.text == "durante"
 issemicolon(tk::Token) = tk.id == PUNCTUATION && tk.text == ";"
-isio(tk::Token)        = tk.id == RESERVED_WORD && (tk.text == "imprime" || tk.text == "leia")
+isio(tk::Token)        = tk.id == RESERVED_WORD && (tk.text == "escreva" || tk.text == "leia")
+
+global const T = "    "
 
 function type_p2c(typestr::AbstractString)::String
     if typestr == "int" || typestr == "char"
@@ -26,7 +28,7 @@ function type_p2c(typestr::AbstractString)::String
     end # if
 end # type_p2c
 
-function type2fmt(typestr::AbstractString)::String
+function type2fmt(typestr)::String
     if typestr == "int"
         return "%d"
     elseif typestr == "real"
@@ -52,61 +54,88 @@ function hasio(tks::Tokens)::Bool
 end # hasio
 
 
-function transpile(tks::Tokens, file_name::AbstractString, env::Dict)
-    tokens = tks.tokens
-    file = open(file_name, "w")
+function transpile(tks::Tokens, env::Dict)
+    reset!(tks)
 
-    write(file, "#include <stdbool.h>\n")
-    if hasio(tks)
-        write(file, "#include <stdio.h>\n\n")
-    end # if
+    txt = headers(tks)
+    next!(tks)
+    programm_name = next!(tks).text
 
-    write(file, "int main(void) {\n\t")
+    txt *= bloco2str!(tks, env, ["fimprog"], T)
 
-    for i in 1:length(tokens)
-        if isdeclare(tokens[i])
-            arr_ident = []
-            type = ""
-            j = 1
-            while !issemicolon(tokens[i+j])
-                if isident(tokens[i+j])
-                    push!(arr_ident, tokens[i+j].text)
-                end # if
-                if istype(tokens[i+j])
-                    type = tokens[i+j].text
-                end # if
-                j += 1
-            end # while
-            write(file, type_p2c(type)*" ")
-            write(file, join(arr_ident, ", ")*";\n\t")
-            i += j
-
-        elseif isleia(tokens[i])
-            arr_vars = []
-            j = 1
-            while !issemicolon(tokens[i+j])
-                if isident(tokens[i+j])
-                    push!(arr_vars, tokens[i+j].text)
-                end # if
-                j += 1
-            end # while
-            write(file, "scanf(\"")
-            types = []
-            for var in arr_vars
-                if var in keys(arr_vars)
-                    x = type2fmt(env[var]["type"])
-                    push!(types, x)
-                end # if
-            end # for
-
-            println(types)
-
-            write(file, join(types, " ")*"\", &"*join(arr_vars, ", &")*");\n")
-            i += j
-        end # if
-    end # for
-
-    write(file, "\n}")
-
-    close(file)
+    txt *= "\n}\n"
+    write(programm_name*".c", txt)
 end # transpile
+
+
+function bloco2str!(tokens::Tokens, env, expected_end, initial_char="")
+    t = next!(tokens)
+    text = ""
+
+    if t.id==RESERVED_WORD && t.text=="declare"
+        text *= declare2str!(tokens, env, initial_char)
+
+    elseif t.id==RESERVED_WORD && (t.text=="leia" || t.text=="escreva")
+        text *= cmd_io2str!(tokens, env, t.text, initial_char)
+
+    elseif t.id==IDENTIFIER
+        text *= cmd_attr2atr!(tokens, env, initial_char)
+
+    elseif t.id==CFLUX
+        text *= control_flux_parser2str!(tokens, env, initial_char)
+    end
+
+    if !any(x->x==t.text, expected_end)
+        text *= bloco2str!(tokens, env, expected_end, initial_char)
+    end
+    return text
+
+end
+
+
+function declare2str!(tks::Tokens, env, init_char)
+    arr_ident = []
+    type = ""
+    txt = ""
+
+    t = next!(tks)
+    while !issemicolon(t)
+        if isident(t)
+            push!(arr_ident, t.text)
+        end # if
+        if istype(t)
+            type = t.text
+        end # if
+        t = next!(tks)
+    end # while
+
+    txt *= init_char * type_p2c(type)*" "
+    txt *= join(arr_ident, ", ") * ";\n"
+    return txt
+end
+
+
+function headers(tks::Tokens)
+    text = "#include <stdbool.h>\n"
+    if hasio(tks)
+        text *= "#include <stdio.h>\n\n"
+    end # if
+    text *= "int main(void) {\n"
+    return text
+end
+
+function cmd_io2str!(tokens::Tokens, env, io, initial_char)
+    text = ""
+    if io == "leia"
+        next!(tokens) #(
+        var = next!(tokens);
+        text *= initial_char*"scanf(\"$(type2fmt(type(env, var)))\", &$(var.text));\n"
+    else
+        next!(tokens) #(
+        var = next!(tokens);
+        text *= initial_char*"printf(\"$(type2fmt(type(env, var)))\\n\", $(var.text));\n"
+
+    end
+    next!(tokens); next!(tokens) # );
+    return text
+end
