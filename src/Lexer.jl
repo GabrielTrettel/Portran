@@ -131,11 +131,11 @@ function parse_str(src, pos, line)::Token
     end # for
 
     if last(src[1:finish]) != '\"'
-        return Token(INVALID, src[1:finish], (pos, pos+finish-1), line)
+        return Token(INVALID, src[1:finish], (pos, pos+finish), line)
     end # if
 
     # return Token(STRING, String(vec_chars), (pos, pos+len))
-    return Token(STRING, src[1:finish], (pos, pos+finish-1), line)
+    return Token(STRING, src[1:finish], (pos, pos+finish), line)
 end # function
 
 function parse_rest(src, pos, line)::Token
