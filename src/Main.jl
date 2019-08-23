@@ -20,11 +20,12 @@ function main()
     # print("$CEND \n\n")
     try
         syntactic_parse(tks)
-        println("Compilation succeed")
+        transpile(tks, c_file_name)
+        println("$(CGREEN)Compilation succeed!! $CEND")
     catch
     end
 
-    transpile(tks, c_file_name)
+
 
 end # function main
 end # Module

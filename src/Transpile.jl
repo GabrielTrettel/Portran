@@ -28,6 +28,4 @@ function transpile(tks::Tokens, file_name::AbstractString)
     write(file, "\n}")
 
     close(file)
-
-    println("$(CGREEN)Compilation succeed!! $CEND")
 end # function
