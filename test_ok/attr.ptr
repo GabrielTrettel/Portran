@@ -1,0 +1,5 @@
+programa declara
+    declare a : int;
+    a := 10;sa
+    escreva(a);
+fimprog
