@@ -71,24 +71,25 @@ end # transpile
 function bloco2str!(tokens::Tokens, env, expected_end, initial_char="")
     t = next!(tokens)
     text = ""
-
     if t.id==RESERVED_WORD && t.text=="declare"
-        text *= declare2str!(tokens, env, initial_char)
+        text = declare2str!(tokens, env, initial_char)
 
     elseif t.id==RESERVED_WORD && (t.text=="leia" || t.text=="escreva")
-        text *= cmd_io2str!(tokens, env, t.text, initial_char)
+        text = cmd_io2str!(tokens, env, t.text, initial_char)
 
     elseif t.id==IDENTIFIER
-        text *= cmd_attr2atr!(tokens, env, initial_char)
+        text = cmd_attr2atr!(tokens, env, initial_char)
 
     elseif t.id==CFLUX
-        text *= control_flux_parser2str!(tokens, env, initial_char)
+        text = control_flux_parser2str!(tokens, env, initial_char)
     end
 
+    @show text
     if !any(x->x==t.text, expected_end)
-        text *= bloco2str!(tokens, env, expected_end, initial_char)
+        return text * bloco2str!(tokens, env, expected_end, initial_char)
+    else
+        return text
     end
-    return text
 
 end
 
@@ -153,9 +154,13 @@ function expr2str!(tokens, env)
     expr = ""
     t = next!(tokens)
 
-    if t.text==";" || t.line != next(tokens).line
+    if t.text==";"
+        return expr
+    elseif t.line!=previous(tokens).line
+        roll_back(tokens)
         return expr
     end
+
     w = next(tokens).text==";" || t.line != next(tokens).line ? "" : " "
 
     text = t.text
@@ -171,39 +176,45 @@ function control_flux_parser2str!(tokens::Tokens, env, initial_char)
     text = ""
     t = current(tokens)
     if t.text == "se"
-        text *= se2txt!(tokens, env)
+        text *= se2txt!(tokens, env, initial_char)
     elseif t.text == "enquanto"
-        text *= parse_enquanto!(tokens, env)
+        text *= parse_enquanto!(tokens, env, initial_char)
     elseif t.text == "faca"
-        text *= parse_faca!(tokens, env)
-    end
-end
-
-function se2txt!(tokens, env)
-    next!(tokens)
-    par_expr!(tokens, env, "boleano")
-    t = next!(tokens)
-
-    text = bloco2txt!(tokens, env, ["fimse", "senao"])
-
-    if current(tokens).text == "senao"
-        text *= bloco2str!(tokens, env, ["fimse"], T*T)
+        text *= parse_faca!(tokens, env, initial_char)
     end
     return text
 end
 
+function se2txt!(tokens, env, initial_char)
+    expr = expr2str!(tokens, env)
+
+    text = initial_char*"if ($expr) {\n"
+
+    text *= bloco2str!(tokens, env, ["fimse", "senao"], initial_char*T)
+
+    if current(tokens).text == "senao"
+        text *= initial_char*"} else {\n"
+        text *= bloco2str!(tokens, env, ["fimse"], initial_char*T)
+    end
+
+    text *= initial_char*"}\n"
+    return text
+end
 
 function parse_enquanto!(tokens, env)
+    @show current(tokens)
     next!(tokens)
-    par_expr!(tokens, env, "boleano")
+    expr2str!(tokens, env)
     t = next!(tokens)
-    bloco2str!(tokens, env, ["fimenq"], T*T)
+    bloco2str!(tokens, env, ["fimenq"], initial_char^2)
+    return ""
 end
 
 
-function parse_faca!(tokens, env)
+function parse_faca!(tokens, env, initial_char)
     next!(tokens)
-    bloco2str!(tokens, env, ["durante"],T*T)
+    bloco2str!(tokens, env, ["durante"],initial_char^2)
     next!(tokens)
-    par_expr!(tokens, env, "boleano")
+    expr2str!(tokens, env)
+    return ""
 end
