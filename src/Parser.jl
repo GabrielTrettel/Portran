@@ -131,16 +131,17 @@ function cmd_io!(tokens::Tokens, env, io)
     t = next!(tokens)
     if t.id==PUNCTUATION && t.text=="("
         t = next!(tokens)
-        if t.id==IDENTIFIER
-            if haskey(env, t.text)
+        if t.id==IDENTIFIER || t.id==STRING
+            if t.id==STRING || haskey(env, t.text)
                 if io == "leia"
+                    if t.id==STRING error("String in 'leia' statement is not allowed", t) end
                     init!(env, t, true)
                 else # escreva
-                    if !init(env, t)
+                    if t.id!=STRING && !init(env, t)
                         error("Trying to print uninitialized variable `$(t.text)`", t)
                     end
                 end # io
-            else
+            elseif t.id!=STRING
                 error("Trying to read from undeclared variable `$(t.text)`.", t)
             end # env
 
@@ -153,7 +154,7 @@ function cmd_io!(tokens::Tokens, env, io)
         end # )
 
         t = next!(tokens)
-        if !isperiod(t) error("Missing period.", t) end
+        if !isperiod(t) error("Missing semicolon.", t) end
     else # (
         error("Missing open parenthesis in `$io` stmt.", t)
     end # (

@@ -19,7 +19,7 @@ function Base.error(err_msg::String, t::Token)
     println(" "^(t.col-3+length(ln))*"^^^^^")
 
     println("$CRED"*"$err_msg at line $(t.line):$(t.col)")
-    println("Compilation failed")
+    println("Compilation failed$CEND")
 
 
     error("void")

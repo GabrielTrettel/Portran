@@ -124,14 +124,16 @@ end
 
 function cmd_io2str!(tokens::Tokens, env, io, initial_char)
     text = ""
+    next!(tokens) #(
+    var = next!(tokens);
     if io == "leia"
-        next!(tokens) #(
-        var = next!(tokens);
         text *= initial_char*"scanf(\"$(type2fmt(type(env, var)))\", &$(var.text));\n"
-    else
-        next!(tokens) #(
-        var = next!(tokens);
-        text *= initial_char*"printf(\"$(type2fmt(type(env, var)))\\n\", $(var.text));\n"
+    else # escreva
+        if var.id==STRING
+            text *= initial_char*"printf($(var.text));\n"
+        else
+            text *= initial_char*"printf(\"$(type2fmt(type(env, var)))\\n\", $(var.text));\n"
+        end
     end
     next!(tokens); next!(tokens); # );
     return text

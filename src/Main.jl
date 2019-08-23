@@ -14,6 +14,7 @@ function main()
 
     try
         tks = tokenise(io)
+        # println(join(tks.tokens,"\n"))
         env = syntactic_parse(tks)
         write("$file_name.json", string(json(env, 4)))
         transpile(tks, env, file_name*".c")
