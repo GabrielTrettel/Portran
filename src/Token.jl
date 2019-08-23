@@ -22,8 +22,9 @@ mutable struct Token
     text :: String
     span :: Tuple{Integer, Integer}
     line :: Integer
-    function Token(id=INVALID, txt="", span=(0, 0), line=1)
-        new(id, txt, span, line)
+    col  :: Integer
+    function Token(id=INVALID, txt="", span=(0, 0), line=1, col=1)
+        new(id, txt, span, line, col)
     end # function
 end # struct
 

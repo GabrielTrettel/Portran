@@ -1,7 +1,7 @@
 include("Token.jl")
 
 const RESERVEDWORDS  = Set(["programa", "declare", "escreva", "leia", "fimprog"])
-const CONTROL_FLUX   = Set(["se", "entao", "senao", "fimse", "enquanto", "faca", "fimenq", "fimfaca"])
+const CONTROL_FLUX   = Set(["se", "entao", "senao", "fimse", "enquanto", "faca", "fimenq", "durante"])
 const BOOL_VALUE     = Set(["Verdadeiro", "Falso", "V", "F"])
 const TYPE_NAMES     = Set(["int", "real", "char", "texto", "boleano"])
 const BLANKS         = Set([' ', '\n', '\t', '\r'])
@@ -179,11 +179,16 @@ function tokenise(src::String)::Tokens
     source = Source(src)
     vec_tokens :: Array{Token} = []
     line = 1
-
+    coll = 1
     while true
         token = next_token(source, line)
+        token.col = coll
+
+        coll += length(token.text)
+
         if token.id == WHITESPACE && token.text == "\n"
             line += 1
+            coll = 1
         end # if
         if token.id == EOF
             push!(vec_tokens, token)
