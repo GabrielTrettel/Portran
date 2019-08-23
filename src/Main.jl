@@ -8,7 +8,7 @@ include("Styles.jl")
 using JSON
 
 function main()
-    file_to_parse = ARGS[1]
+    global file_to_parse = ARGS[1]
     file_name = file_to_parse[1:end-4]
     io = read(file_to_parse, String)
 
