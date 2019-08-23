@@ -212,9 +212,9 @@ end
 
 
 function parse_faca!(tokens, env, initial_char)
-    next!(tokens)
-    bloco2str!(tokens, env, ["durante"],initial_char^2)
-    next!(tokens)
-    expr2str!(tokens, env)
-    return ""
+    # next!(tokens)
+    blk = bloco2str!(tokens, env, ["durante"], initial_char*T)
+    expr = expr2str!(tokens, env)
+
+    text = initial_char*"do {\n $blk$initial_char{ while ($expr);\n"
 end
