@@ -7,6 +7,7 @@ include("Styles.jl")
 
 function main()
     file_to_parse = ARGS[1]
+    # file_to_parse = "test_ok/declare.ptr"
     c_file_name = file_to_parse[1:end-3] * "c"
 
     io = read(file_to_parse, String)
@@ -24,8 +25,6 @@ function main()
         println("$(CGREEN)Compilation succeed!! $CEND")
     catch
     end
-
-
 
 end # function main
 end # Module
