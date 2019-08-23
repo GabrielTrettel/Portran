@@ -13,6 +13,7 @@
    WHITESPACE     = 11
    CFLUX          = 12
    BOOL           = 13
+   COMMENT        = 14
    EOF            = -1
 end # enum
 

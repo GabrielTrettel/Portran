@@ -174,6 +174,18 @@ function parse_rest(src, pos, line)::Token
     end # if
 end # function
 
+function parse_comment(str::String, pos, line)
+    chars = collect(str)
+    finish = 0
+    for (i, ch) in enumerate(chars)
+        if ch == '\n'
+            finish = i
+            break
+        end # if
+    end # for
+    return Token(COMMENT, str[1:finish], (pos, pos+finish), line)
+end # function
+
 function tokenise(src::String)::Tokens
     i = 0
     source = Source(src)
