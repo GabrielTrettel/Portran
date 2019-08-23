@@ -47,16 +47,16 @@ function syntactic_parse(tokens::Tokens)
             bloco!(tokens, env, ["fimprog"])
 
         else
-            error("Parsing Error - Expecting name of program",t)
+            error("Parsing Error - Expecting name of program.",t)
         end
     else
-        error("Parsing Error - Expecting PROGRAMA",t)
+        error("Parsing Error - Expecting PROGRAMA.",t)
     end
 
     t = next!(tokens)
 
     if t.id != EOF
-        error("Program finished but file has content",t)
+        error("Program finished but file has content.",t)
     end
 
     println(json(env, 4))
@@ -77,7 +77,7 @@ function declare!(tokens::Tokens, env)
     end
 
     if t.id == RESERVED_WORD || t.id == CFLUX
-        error("Reserved words can't be used as variable names `$(t.text)`", t)
+        error("Reserved words can't be used as variable names `$(t.text)`.", t)
     end
 
 
@@ -86,7 +86,7 @@ function declare!(tokens::Tokens, env)
         if t.id == TYPE
             map(x->x.type=t.text, current_declared_vars)
         else
-            error("`$(t.text)` is not a correct TYPE", t)
+            error("`$(t.text)` is not a correct TYPE.", t)
         end
 
         t = next!(tokens)
@@ -101,7 +101,7 @@ function declare!(tokens::Tokens, env)
             error("`$(t.text)` Not an end of line.", t)
         end
     else
-        error("Not correct DECLARE stmt", t)
+        error("Not correct DECLARE stmt.", t)
     end
 end
 
@@ -139,25 +139,25 @@ function cmd_io!(tokens::Tokens, env, io)
                     init!(env, t, true)
                 else # escreva
                     if init(t, env)
-                        error("Trying to print uninitialized variable", t)
+                        error("Trying to print uninitialized variable.", t)
                     end
                 end # io
             else
-                error("Trying to read from undeclared variable `$(t.text)`", t)
+                error("Trying to read from undeclared variable `$(t.text)`.", t)
             end # env
 
         else # id
-            error("Values inside `$io` command must be a variable, not `$(t.text)`", t)
+            error("Values inside `$io` command must be a variable, not `$(t.text)`.", t)
         end # id
         t = next!(tokens)
         if t.id!=PUNCTUATION && t.text==")"
-            error("Missing closing parenthesis in `$io` stmt", t)
+            error("Missing closing parenthesis in `$io` stmt.", t)
         end # )
 
         t = next!(tokens)
-        if !isperiod(t) error("Missing period", t) end
+        if !isperiod(t) error("Missing period.", t) end
     else # (
-        error("Missing open parenthesis in `$io` stmt", t)
+        error("Missing open parenthesis in `$io` stmt.", t)
     end # (
 end
 
@@ -175,7 +175,7 @@ function cmd_attr!(tokens::Tokens, env)
                     value!(env, variable, t.text)
                     init!(env, variable, true)
                 else # not compatible types
-                    error("Mismatching types between `$(variable.text)` and literal of type `$(t.id)`", t)
+                    error("Mismatching types between `$(variable.text)` and literal of type `$(t.id)`.", t)
                 end #type_match
             else # should be expr
                 a_value, a_type = par_expr!(tokens, env, variable)
@@ -184,13 +184,13 @@ function cmd_attr!(tokens::Tokens, env)
             end # if is literal
 
             t = next!(tokens)
-            if !isperiod(t) error("Missing semicolon", t) end
+            if !isperiod(t) error("Missing semicolon.", t) end
         else # isn't assign symbol
-            error("Assign symbol required", t)
+            error("Assign symbol required.", t)
         end #isassing
 
     else #not has key
-        error("Undefined vaiable `$(variable.text)`", variable)
+        error("Undefined variable `$(variable.text)`.", variable)
     end # haskey
 end
 
@@ -251,21 +251,21 @@ function expr_to_text(tokens::Tokens, env)
         if isperiod(t) break end
 
         if t.id==CFLUX || t.id==TYPE || t.id==RESERVED_WORD
-            error("Reserved words cant be used in expressions statements", t)
+            error("Reserved words cant be used in expressions statements.", t)
         elseif t.id==ASSIGN
-            error("Assign sinal in expression. Equal is `==`", t)
+            error("Assign sinal in expression. Equal is `==`.", t)
         end
 
         val = t.text
         if t.id == IDENTIFIER
             if !haskey(env, t.text)
-                error("Using undefined variable `$(t.text)`", t)
+                error("Using undefined variable `$(t.text)`.", t)
             else # haskey
                 if !isnumber(t, env)
-                    error("Trying to use non numeric or logic values in expression", t)
+                    error("Trying to use non numeric or logic values in expression.", t)
                 end #isnumber
                 if !init(env, t)
-                    error("Trying to use non uninitialized variable `$(t.text)`", t)
+                    error("Trying to use non uninitialized variable `$(t.text)`.", t)
                 end #init
                 if value(env, t) != ""
                     val = value(env, t)

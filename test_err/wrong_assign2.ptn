@@ -1,0 +1,6 @@
+programa wrong_assign2
+    declare x: int;
+
+    x := 10 + := 3;
+
+fimprog
