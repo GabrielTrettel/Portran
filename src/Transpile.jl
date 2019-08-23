@@ -178,7 +178,7 @@ function control_flux_parser2str!(tokens::Tokens, env, initial_char)
     if t.text == "se"
         text *= se2txt!(tokens, env, initial_char)
     elseif t.text == "enquanto"
-        text *= parse_enquanto!(tokens, env, initial_char)
+        text *= enquanto2str!(tokens, env, initial_char)
     elseif t.text == "faca"
         text *= parse_faca!(tokens, env, initial_char)
     end
@@ -201,13 +201,13 @@ function se2txt!(tokens, env, initial_char)
     return text
 end
 
-function parse_enquanto!(tokens, env)
-    @show current(tokens)
-    next!(tokens)
-    expr2str!(tokens, env)
-    t = next!(tokens)
-    bloco2str!(tokens, env, ["fimenq"], initial_char^2)
-    return ""
+function enquanto2str!(tokens::Tokens, env, initial_char)
+    expr = expr2str!(tokens, env)
+    blk = bloco2str!(tokens, env, ["fimenq"], initial_char*T)
+    text = initial_char*"while ($expr) {\n$blk"
+    text *= initial_char*"}\n"
+
+    return text
 end
 
 
