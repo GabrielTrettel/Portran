@@ -1,0 +1,8 @@
+programa declara
+    declare a, b, c: int;
+    declare d: real;
+    declare e: char;
+    declare f: boleano;
+    declare g: texto;
+
+fimprog

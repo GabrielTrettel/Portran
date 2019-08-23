@@ -3,8 +3,8 @@ programa teste
    leia(a1);
    leia(a2);
 
-   se a1 < 6562
-      a3 := a1 + a2
+   se a1 < a2
+      a3 := a1 + a2;
    senao
       a3 := a2;
       se a1 > 2

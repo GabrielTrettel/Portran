@@ -1,0 +1,3 @@
+programa wrong_assign
+    declare x := 10;
+fimprog

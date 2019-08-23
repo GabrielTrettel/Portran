@@ -7,13 +7,17 @@ include("Styles.jl")
 
 function main()
     file_to_parse = ARGS[1]
+    # file_to_parse = "test_ok/declare.ptr"
+    c_file_name = file_to_parse[1:end-3] * "c"
+
     io = read(file_to_parse, String)
 
     tks = tokenise(io)
 
     try
-        syntactic_parse(tks)
-        println("Compilation succeed")
+        env = syntactic_parse(tks)
+        transpile(tks, c_file_name, env)
+        println("$(CGREEN)Compilation succeed!! $CEND")
     catch
 
     end

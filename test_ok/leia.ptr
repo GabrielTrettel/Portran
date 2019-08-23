@@ -1,0 +1,6 @@
+programa aaaa
+    declare x: int;
+
+    leia(x);
+
+fimprog
