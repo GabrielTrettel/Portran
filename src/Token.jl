@@ -50,7 +50,7 @@ function next!(t::Tokens)
       error("Invalid token $(v.text)", v)
    end
 
-   println("$CGREEN $v $CEND")
+   # println("$CGREEN $v $CEND")
    return v
 end
 
