@@ -1,0 +1,21 @@
+programa media
+    declare acumulador, numero, i : int;
+
+    escreva("Calcular o fatorial de ");
+    leia(numero);
+
+    acumulador := 1;
+    i := 1;
+
+    faca
+        acumulador := i * acumulador;
+        i := 1 + i;
+
+    durante i <= numero
+
+    escreva("O fatorial de ");
+    escreva(numero);
+    escreva(" eh ");
+    escreva(acumulador);
+
+fimprog

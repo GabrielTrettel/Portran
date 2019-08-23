@@ -1,0 +1,30 @@
+programa media
+    declare acumulador, nota : real;
+    declare qtd_alunos, i : int;
+
+    acumulador := 0.0;
+    escreva("Escreva a quantidade de alunos ");
+    leia(qtd_alunos);
+    i := 0;
+
+    enquanto i < qtd_alunos
+        escreva("Entre com a nota do aluno ");
+        escreva(i);
+        leia(nota);
+        acumulador := acumulador + nota;
+
+        se nota <= 6
+            escreva("Infelizmente esse aluno nao passou\n");
+        senao
+            escreva("Passou na disciplina\n");
+        fimse
+
+        i := i + 1;
+    fimenq
+
+    acumulador := acumulador / qtd_alunos;
+
+    escreva("A media eh: ");
+    escreva(acumulador);
+    escreva("\n");
+fimprog
