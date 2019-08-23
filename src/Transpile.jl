@@ -124,6 +124,7 @@ function headers(tks::Tokens)
     return text
 end
 
+
 function cmd_io2str!(tokens::Tokens, env, io, initial_char)
     text = ""
     if io == "leia"
@@ -134,8 +135,33 @@ function cmd_io2str!(tokens::Tokens, env, io, initial_char)
         next!(tokens) #(
         var = next!(tokens);
         text *= initial_char*"printf(\"$(type2fmt(type(env, var)))\\n\", $(var.text));\n"
-
     end
-    next!(tokens); next!(tokens) # );
+    next!(tokens); next!(tokens); # );
     return text
+end
+
+function cmd_attr2atr!(tokens::Tokens, env, initial_char)
+    var =  current(tokens);
+    next!(tokens) #:=
+    expr = expr2str!(tokens, env)
+
+    text = initial_char*"$(var.text) = $expr;\n"
+    return text
+end
+
+function expr2str!(tokens, env)
+    expr = ""
+    t = next!(tokens)
+
+    if t.text==";" || t.line != next(tokens).line
+        return expr
+    end
+    w = next(tokens).text==";" || t.line != next(tokens).line ? "" : " "
+
+    text = t.text
+    if t.id==BOOL
+        text = text=="V" ? "true" : "false"
+    end
+
+    expr *= text * w * expr2str!(tokens, env)
 end
