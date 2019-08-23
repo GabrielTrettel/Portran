@@ -2,15 +2,6 @@ include("Token.jl")
 
 istype(tk::Token)      = tk.id == TYPE
 isident(tk::Token)     = tk.id == IDENTIFIER
-isdeclare(tk::Token)   = tk.id == RESERVED_WORD && tk.text == "declare"
-isimprime(tk::Token)   = tk.id == RESERVED_WORD && tk.text == "escreva"
-isleia(tk::Token)      = tk.id == RESERVED_WORD && tk.text == "leia"
-isassign(tk::Token)    = tk.id == ASSIGN
-isse(tk::Token)        = tk.id == CFLUX && tk.text == "se"
-issenao(tk::Token)     = tk.id == CFLUX && tk.text == "senao"
-isenquanto(tk::Token)  = tk.id == CFLUX && tk.text == "enquanto"
-isfaca(tk::Token)      = tk.id == CFLUX && tk.text == "faca"
-isdurante(tk::Token)   = tk.id == CFLUX && tk.text == "durante"
 issemicolon(tk::Token) = tk.id == PUNCTUATION && tk.text == ";"
 isio(tk::Token)        = tk.id == RESERVED_WORD && (tk.text == "escreva" || tk.text == "leia")
 
