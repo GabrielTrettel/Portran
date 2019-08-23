@@ -20,8 +20,8 @@ function main()
 
     # print("$CEND \n\n")
     try
-        syntactic_parse(tks)
-        transpile(tks, c_file_name)
+        env = syntactic_parse(tks)
+        transpile(tks, c_file_name, env)
         println("$(CGREEN)Compilation succeed!! $CEND")
     catch
     end

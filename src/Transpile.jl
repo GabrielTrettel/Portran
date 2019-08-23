@@ -24,7 +24,23 @@ function type_p2c(typestr::AbstractString)::String
     elseif typestr == "texto"
         return "char*"
     end # if
-end # function
+end # type_p2c
+
+function type2fmt(typestr::AbstractString)::String
+    if typestr == "int"
+        return "%d"
+    elseif typestr == "real"
+        return "%lf"
+    elseif typestr == "boleano"
+        return "%d"
+    elseif typestr == "char"
+        return "%c"
+    elseif typestr == "texto"
+        return "%s"
+    else
+        return "%p"
+    end # if
+end # type2fmt
 
 function hasio(tks::Tokens)::Bool
     for tk in tks.tokens
@@ -33,10 +49,10 @@ function hasio(tks::Tokens)::Bool
         end # if
     end # for
     false
-end # function
+end # hasio
 
 
-function transpile(tks::Tokens, file_name::AbstractString)
+function transpile(tks::Tokens, file_name::AbstractString, env::Dict)
     tokens = tks.tokens
     file = open(file_name, "w")
 
@@ -47,8 +63,8 @@ function transpile(tks::Tokens, file_name::AbstractString)
 
     write(file, "int main(void) {\n\t")
 
-    for (i, tk) in enumerate(tokens)
-        if isdeclare(tk)
+    for i in 1:length(tokens)
+        if isdeclare(tokens[i])
             arr_ident = []
             type = ""
             j = 1
@@ -61,14 +77,36 @@ function transpile(tks::Tokens, file_name::AbstractString)
                 end # if
                 j += 1
             end # while
-            println(type)
-            println(arr_ident)
             write(file, type_p2c(type)*" ")
             write(file, join(arr_ident, ", ")*";\n\t")
+            i += j
+
+        elseif isleia(tokens[i])
+            arr_vars = []
+            j = 1
+            while !issemicolon(tokens[i+j])
+                if isident(tokens[i+j])
+                    push!(arr_vars, tokens[i+j].text)
+                end # if
+                j += 1
+            end # while
+            write(file, "scanf(\"")
+            types = []
+            for var in arr_vars
+                if var in keys(arr_vars)
+                    x = type2fmt(env[var]["type"])
+                    push!(types, x)
+                end # if
+            end # for
+
+            println(types)
+
+            write(file, join(types, " ")*"\", &"*join(arr_vars, ", &")*");\n")
+            i += j
         end # if
     end # for
 
     write(file, "\n}")
 
     close(file)
-end # function
+end # transpile

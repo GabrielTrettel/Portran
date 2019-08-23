@@ -37,7 +37,7 @@ value!(env, t, v) = env[t.text].value = v
 init!(env, t, v)  = env[t.text].init = v
 
 
-function syntactic_parse(tokens::Tokens)
+function syntactic_parse(tokens::Tokens)::Dict
     env = Dict()
 
     t = next!(tokens)
@@ -60,6 +60,7 @@ function syntactic_parse(tokens::Tokens)
     end
 
     println(json(env, 4))
+    return env
 end
 
 
