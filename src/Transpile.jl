@@ -165,3 +165,45 @@ function expr2str!(tokens, env)
 
     expr *= text * w * expr2str!(tokens, env)
 end
+
+
+function control_flux_parser2str!(tokens::Tokens, env, initial_char)
+    text = ""
+    t = current(tokens)
+    if t.text == "se"
+        text *= se2txt!(tokens, env)
+    elseif t.text == "enquanto"
+        text *= parse_enquanto!(tokens, env)
+    elseif t.text == "faca"
+        text *= parse_faca!(tokens, env)
+    end
+end
+
+function se2txt!(tokens, env)
+    next!(tokens)
+    par_expr!(tokens, env, "boleano")
+    t = next!(tokens)
+
+    text = bloco2txt!(tokens, env, ["fimse", "senao"])
+
+    if current(tokens).text == "senao"
+        text *= bloco2str!(tokens, env, ["fimse"], T*T)
+    end
+    return text
+end
+
+
+function parse_enquanto!(tokens, env)
+    next!(tokens)
+    par_expr!(tokens, env, "boleano")
+    t = next!(tokens)
+    bloco2str!(tokens, env, ["fimenq"], T*T)
+end
+
+
+function parse_faca!(tokens, env)
+    next!(tokens)
+    bloco2str!(tokens, env, ["durante"],T*T)
+    next!(tokens)
+    par_expr!(tokens, env, "boleano")
+end
