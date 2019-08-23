@@ -1,7 +1,9 @@
 
+include("Styles.jl")
 
 import Base.error
-
 function Base.error(err_msg::String, t::Token)
-    error("$err_msg at line $(t.line):$(t.span[1])")
+    println("$CRED"*"Compilation failed")
+    println("$err_msg at line $(t.line):$(t.col)")
+    error("void")
 end

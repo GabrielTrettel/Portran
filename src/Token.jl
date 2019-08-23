@@ -61,6 +61,6 @@ current(t::Tokens)   = t.tokens[t.pos]
 roll_back(t::Tokens) = t.pos -= 1
 
 # Base.show is invoked in Atom and @show
-Base.show(io::IO, t::Token) = println(io, "`$(t.text)` is $(t.id) start: $(t.span[1]) end: $(t.span[2]) at line $(t.line)")
+Base.show(io::IO, t::Token) = println(io, "`$(t.text)` is $(t.id) start: $(t.span[1]) end: $(t.span[2]) at $(t.line):$(t.col)")
 # Base.println is invoked in println call
-Base.println(t::Token) = println("`$(t.text)` is $(t.id) start: $(t.span[1]) end: $(t.span[2]) at line $(t.line)")
+Base.println(t::Token) = println("`$(t.text)` is $(t.id) start: $(t.span[1]) end: $(t.span[2]) at $(t.line):$(t.col)")

@@ -16,7 +16,11 @@ function main()
     end # for
 
     print("$CEND \n\n")
-    syntactic_parse(tks)
+    try
+        syntactic_parse(tks)
+        println("Compilation succeed")
+    catch
+    end
 
 end # function main
 end # Module
