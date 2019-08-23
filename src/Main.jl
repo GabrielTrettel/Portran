@@ -7,6 +7,8 @@ include("Styles.jl")
 
 function main()
     file_to_parse = ARGS[1]
+    c_file_name = file_to_parse[1:end-3] * "c"
+
     io = read(file_to_parse, String)
 
     tks = tokenise(io)
@@ -21,6 +23,8 @@ function main()
         println("Compilation succeed")
     catch
     end
+
+    transpile(tks, c_file_name)
 
 end # function main
 end # Module

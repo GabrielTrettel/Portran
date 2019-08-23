@@ -4,10 +4,10 @@ programa teste
    leia(a2);
 
    se a1 < a2
-      a3 := a1 + := a2;
+      a3 := a1 + a2;
    senao
       a3 := a2;
-      se a1 > 2 entao
+      se a1 > 2
          a1 := 7;
       fimse
    fimse
