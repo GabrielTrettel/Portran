@@ -16,5 +16,4 @@ programa teste
    fff := F || V;
 
    d4 := a1 * (d2 + c2 * 5);
-
 fimprog

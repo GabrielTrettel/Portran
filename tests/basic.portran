@@ -1,15 +1,23 @@
 programa teste
-   declare a1, a2, a3: int;
+   declare a1, a2, a3 : int;
    leia(a1);
    leia(a2);
 
-   se a1 < a2 entao
-      a3 := a1 + a2;
+   se a1 < 6562
+      a3 := a1 + a2
    senao
       a3 := a2;
-      se a1 > 2 entao
+      se a1 > 2
          a1 := 7;
       fimse
    fimse
+
+   enquanto a1 < 2
+      a1 := a1 + 1;
+   fimenq
+
+   faca
+      a1 := 10
+   durante a1 < 60
 
 fimprog

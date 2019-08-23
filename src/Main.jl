@@ -11,15 +11,11 @@ function main()
 
     tks = tokenise(io)
 
-    # for token in tks.tokens
-    #     println("$CRED",token)
-    # end # for
-
-    # print("$CEND \n\n")
     try
         syntactic_parse(tks)
         println("Compilation succeed")
     catch
+
     end
 
 end # function main
