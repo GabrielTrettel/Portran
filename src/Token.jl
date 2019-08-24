@@ -41,7 +41,7 @@ end
 
 function next!(t::Tokens)
    if t.pos == t.total
-      error("EOF reached and parser not finished")
+      error("EOF reached and parser not finished", previous(t))
    end
 
    t.pos += 1

@@ -1,0 +1,4 @@
+programa init
+    declare x, a;
+    a := x;
+fimprog

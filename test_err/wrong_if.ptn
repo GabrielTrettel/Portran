@@ -1,0 +1,5 @@
+programa wrong_if
+    se 10 < 11
+        escreva("AAAAA");
+
+fimprog

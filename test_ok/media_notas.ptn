@@ -1,0 +1,15 @@
+programa media_notas
+    declare p1, p2, trab, media: real;
+
+    escreva("Nota P1: ");
+    leia(p1);
+    escreva("Nota P2: ");
+    leia(p2);
+    escreva("Nota Trabalho: ");
+    leia(trab);
+
+    media := (p1 + p2 + trab) / 3;
+    escreva("A media eh: ");
+    escreva(media);
+
+fimprog

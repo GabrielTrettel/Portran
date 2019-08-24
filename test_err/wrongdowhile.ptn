@@ -1,0 +1,7 @@
+programa wrongdowhile
+    declare x: int;
+    x := 0;
+    faca
+        escreva("Fiz");
+    +durante x ++ 1
+fimprog
