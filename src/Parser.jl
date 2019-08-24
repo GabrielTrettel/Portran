@@ -68,6 +68,9 @@ function declare!(tokens::Tokens, env)
 
     while t.id == IDENTIFIER || iscoma(t)
         if t.id == IDENTIFIER
+            if haskey(env, t.text)
+                error("Already defined variable.", t)
+            end
             push!(current_declared_vars, var_state(t.text))
         end
 
@@ -215,10 +218,10 @@ function par_expr!(tokens::Tokens, env, expecting=nothing)
             eval_value = expr
         end
     catch
-        error("Failed to eval expression", current(tokens))
+        error("Failed to eval expression.", current(tokens))
     end
 
-    if typeof(eval_value) <: Number && abs(eval_value) == Inf error("Division by zero is not allowed", previous(tokens)) end
+    if typeof(eval_value) <: Number && abs(eval_value) == Inf error("Division by zero is not allowed.", previous(tokens)) end
 
     atype = ""
     try
@@ -228,7 +231,7 @@ function par_expr!(tokens::Tokens, env, expecting=nothing)
         end
     catch
         atype = map_julia_to_por[typeof(eval_value)]
-        error("Trying to cast an expression with incompatible types: `$expected_type` with `$atype`", expecting)
+        error("Trying to cast an expression with incompatible types: `$expected_type` with `$atype`.", expecting)
     end
 
     roll_back(tokens)
