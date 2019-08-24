@@ -20,4 +20,6 @@ programa teste2
     escreva("D é igual a ");
     escreva(d);
 
+    escreva("D eh igual a");
+    escreva(d);
 fimprog

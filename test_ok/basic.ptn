@@ -1,16 +1,15 @@
 programa teste
    declare a1, a2, a3 : int;
 
-   escreva("text\n");
-   leia( a1 );
-   leia( a2 );
+   escreva("Escreva um numero A e um B menor que a\n");
+   escreva("que eu te mostro todos os numeros que estao entre eles\n");
+   leia(a1);
+   leia(a2);
 
    enquanto a1 < a2
       a1 := a1 + 1;
       escreva(a1);
+      escreva("\n");
    fimenq
-
-   escreva(a1);
-   escreva(a2);
 
 fimprog

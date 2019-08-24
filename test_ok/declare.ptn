@@ -1,0 +1,20 @@
+programa declara
+    declare a, b, c: int;
+    declare d: real;
+    declare e: char;
+    declare f: boleano;
+    declare g: texto;
+
+    leia(a);
+    leia(d);
+    leia(e);
+    leia(f);
+    leia(g);
+
+    escreva(a);
+    escreva(d);
+    escreva(e);
+    escreva(f);
+    escreva(g);
+
+fimprog
