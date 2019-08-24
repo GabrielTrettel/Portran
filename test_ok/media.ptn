@@ -10,6 +10,7 @@ programa media
     enquanto i <= qtd_alunos
         escreva("Entre com a nota do aluno ");
         escreva(i);
+        escreva(" ");
         leia(nota);
         acumulador := acumulador + nota;
         i := i + 1;

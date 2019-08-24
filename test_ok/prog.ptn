@@ -1,0 +1,14 @@
+programa teste
+   declare a1, b1: int;
+   leia(a1);
+   leia(b1);
+
+   enquanto a1 > 10000
+      a1 := 2 + 1;
+   fimenq
+
+   faca
+      a1 := 2 + a1;
+   durante 2 > 10
+
+fimprog

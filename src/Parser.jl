@@ -185,7 +185,7 @@ function cmd_attr!(tokens::Tokens, env)
             t = next!(tokens)
             if !isperiod(t) error("Missing semicolon.", t) end
         else # isn't assign symbol
-            error("Assign symbol required.", t)
+            # error("Assign symbol required.", t)
         end #isassing
 
     else #not has key
@@ -242,7 +242,6 @@ function expr_to_text(tokens::Tokens, env)
     l = t.line
 
     while true
-        # @show t
         if t.line != l
             roll_back(tokens)
             break
@@ -278,7 +277,6 @@ function expr_to_text(tokens::Tokens, env)
 
         expr *= val
         t = next!(tokens)
-
     end # while
 
     return expr
@@ -318,8 +316,8 @@ end
 
 
 function parse_faca!(tokens, env)
-    next!(tokens)
     bloco!(tokens, env, ["durante"])
     next!(tokens)
     par_expr!(tokens, env, "boleano")
+
 end

@@ -1,22 +1,24 @@
 programa teste2
-    declare a, b, c, d : real;
-
+    declare a, b, c, d: real;
     escreva("Programa Teste");
     escreva("Digite A");
     leia(a);
     escreva("Digite B");
     leia(b);
 
-    se a < B
+    se (a < B)
         c := a + b;
     senao
         c := a - b;
     fimse
 
-    escreva("C eh igual a");
+    escreva("C é igual a ");
     escreva(c);
 
     d := c * a + b;
+
+    escreva("D é igual a ");
+    escreva(d);
 
     escreva("D eh igual a");
     escreva(d);

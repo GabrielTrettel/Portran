@@ -1,5 +1,6 @@
 programa declara
     declare a : int;
-    a := 10;sa
+    a := 10;
+    escreva("AA: ");
     escreva(a);
 fimprog

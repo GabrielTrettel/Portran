@@ -123,7 +123,7 @@ function cmd_io2str!(tokens::Tokens, env, io, initial_char)
         if var.id==STRING
             text *= initial_char*"printf($(var.text));\n"
         else
-            text *= initial_char*"printf(\"$(type2fmt(type(env, var)))\\n\", $(var.text));\n"
+            text *= initial_char*"printf(\"$(type2fmt(type(env, var)))\", $(var.text));\n"
         end
     end
     next!(tokens); next!(tokens); # );

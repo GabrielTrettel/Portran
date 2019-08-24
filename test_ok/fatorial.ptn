@@ -17,5 +17,6 @@ programa media
     escreva(numero);
     escreva(" eh ");
     escreva(acumulador);
-
+    escreva("\n");
+    
 fimprog
