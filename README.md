@@ -2,7 +2,7 @@
 
 A little compiler project made to a four months Compilers class at Federal University of ABC
 
-The name comes as a junction of the words `Portuguese` and `Fortran`, since the syntax was somewat based of fortran syntax, but with Portuguese keywords
+The name comes as a junction of the words `Portuguese` and `Fortran`, since the syntax was somewhat based of fortran syntax, but with Portuguese keywords
 
 It compiles a simple programming language specification given to us to C-lang.
 
@@ -29,7 +29,7 @@ Comments starts with `#`, there is only line comments
  * real: Float numbers, like `1.0`, `3.4`, etc
  * char: Character, With single quote marks, like `'k'`
  * text: String, with double quote marks, like "Hello"
- * booleano: Bool type, With values = to V, F, Verdaderio ou Falso
+ * booleano: Bool type, With values equal to V, F, Verdaderio ou Falso
 
  All primitives have a literals
 
